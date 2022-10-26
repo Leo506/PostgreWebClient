@@ -6,7 +6,7 @@ namespace PostgreWebClient.Controllers;
 
 public class ConnectionController : Controller
 {
-    private IConnectionService _connectionService;
+    private readonly IConnectionService _connectionService;
 
     public ConnectionController(IConnectionService connectionService)
     {
@@ -24,11 +24,15 @@ public class ConnectionController : Controller
     {
         if (!ModelState.IsValid)
             return BadRequest();
+        
+        if (Request?.Cookies["session_id"] is not null)
+            return Redirect("/home");
+        
         try
         {
             var sessionId = Guid.NewGuid().ToString();
             Response?.Cookies.Append("session_id", sessionId);
-            _connectionService.Connect(viewModel.ToConnectionString());
+            _connectionService.Connect( sessionId, viewModel.ToConnectionString());
             return Redirect("/home");
         }
         catch (Exception e)

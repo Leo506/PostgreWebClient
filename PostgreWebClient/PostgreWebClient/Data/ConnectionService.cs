@@ -5,10 +5,15 @@ namespace PostgreWebClient.Data;
 
 public class ConnectionService : IConnectionService
 {
-    private NpgsqlConnection? _connection;
-    public void Connect(string connectionString)
+    private Dictionary<string, NpgsqlConnection>? _connections;
+    
+    public void Connect(string key, string connectionString)
     {
-        _connection = new NpgsqlConnection(connectionString);
-        _connection.Open();
+        var connection = new NpgsqlConnection(connectionString);
+        connection.Open();
+
+        _connections ??= new Dictionary<string, NpgsqlConnection>();
+
+        _connections.Add(key, connection);
     }
 }

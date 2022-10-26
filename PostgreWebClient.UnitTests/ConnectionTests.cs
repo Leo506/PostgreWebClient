@@ -18,14 +18,7 @@ public class ConnectionTests
         var sut = new ConnectionController(new Mock<IConnectionService>().Object);
 
         // act
-        var response = sut.Connect(new ConnectionViewModel()
-        {
-            UserId = "admin",
-            Password = "password",
-            Database = "Test",
-            Host = "localhost",
-            Port = 5432
-        });
+        var response = sut.Connect(MakeConnection());
         var result = response as RedirectResult;
 
         // assert
@@ -37,7 +30,8 @@ public class ConnectionTests
     {
         // arrange
         var connectionServiceMock = new Mock<IConnectionService>();
-        connectionServiceMock.Setup(service => service.Connect(It.IsAny<string>())).Throws(new Exception());
+        connectionServiceMock.Setup(service => service.Connect(It.IsAny<string>(), It.IsAny<string>()))
+            .Throws(new Exception());
         var sut = new ConnectionController(connectionServiceMock.Object);
 
         // act
@@ -64,17 +58,63 @@ public class ConnectionTests
             }
         };
         // act
-        sut.Connect(new ConnectionViewModel()
+        sut.Connect(MakeConnection());
+
+
+        // assert
+        contextMock.Verify();
+    }
+
+    [Fact]
+    public void Connect_ModelInvalid_Returns_BadRequest()
+    {
+        // arrange
+        var connectionServiceMock = new Mock<IConnectionService>();
+        var sut = new ConnectionController(connectionServiceMock.Object);
+        sut.ViewData.ModelState.AddModelError("error", "error");
+        
+        // act
+        var response = sut.Connect(MakeConnection());
+        var result = (response as BadRequestResult)!.StatusCode;
+
+        // assert
+        result.Should().Be((int)HttpStatusCode.BadRequest);
+
+    }
+
+    [Fact]
+    public void Connect_ExistsSessionId_Returns_Redirect()
+    {
+        // arrange
+        var connectionServiceMock = new Mock<IConnectionService>();
+        var contextMock = new Mock<HttpContext>();
+        contextMock.Setup(context => context.Request.Cookies["session_id"]).Returns("guid");
+
+        var sut = new ConnectionController(connectionServiceMock.Object)
+        {
+            ControllerContext = new ControllerContext()
+            {
+                HttpContext = contextMock.Object
+            }
+        };
+
+        // act
+        var response = sut.Connect(null);
+        var result = response as RedirectResult;
+
+        // assert
+        result.Should().NotBeNull();
+    }
+
+    private static ConnectionViewModel MakeConnection()
+    {
+        return new ConnectionViewModel()
         {
             UserId = "admin",
             Password = "password",
             Database = "Test",
             Host = "localhost",
             Port = 5432
-        });
-
-
-        // assert
-        contextMock.Verify();
+        };
     }
 }

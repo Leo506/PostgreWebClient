@@ -2,5 +2,5 @@
 
 public interface IConnectionService
 {
-    void Connect(string connectionString);
+    void Connect(string key, string connectionString);
 }

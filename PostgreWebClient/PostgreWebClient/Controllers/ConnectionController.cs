@@ -26,6 +26,8 @@ public class ConnectionController : Controller
             return BadRequest();
         try
         {
+            var sessionId = Guid.NewGuid().ToString();
+            Response?.Cookies.Append("session_id", sessionId);
             _connectionService.Connect(viewModel.ToConnectionString());
             return Redirect("/home");
         }

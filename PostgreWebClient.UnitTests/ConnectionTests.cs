@@ -1,5 +1,6 @@
 using System.Net;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using PostgreWebClient.Abstractions;
@@ -45,5 +46,35 @@ public class ConnectionTests
 
         // assert
         result.Should().Be((int)HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public void Connect_GenerateSessionId_Success()
+    {
+        // arrange
+        var connectionServiceMock = new Mock<IConnectionService>();
+        var contextMock = new Mock<HttpContext>();
+        contextMock.Setup(context => context.Response.Cookies.Append("session_id", It.IsAny<string>())).Verifiable();
+
+        var sut = new ConnectionController(connectionServiceMock.Object)
+        {
+            ControllerContext = new ControllerContext()
+            {
+                HttpContext = contextMock.Object
+            }
+        };
+        // act
+        sut.Connect(new ConnectionViewModel()
+        {
+            UserId = "admin",
+            Password = "password",
+            Database = "Test",
+            Host = "localhost",
+            Port = 5432
+        });
+
+
+        // assert
+        contextMock.Verify();
     }
 }

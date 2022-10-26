@@ -1,0 +1,48 @@
+﻿@model PostgreWebClient.ViewModel.ConnectionViewModel
+
+@{
+    Layout = null;
+}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/PostgreWebClient.styles.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/Index.css">
+    <title>Connecting</title>
+</head>
+<body>
+<div class="center">
+    <form asp-action="Connect" method="post">
+        <fieldset class="border rounded-3 p-3">
+            <legend>Connect to database</legend>
+            <div class="container">
+                <div class="col">
+                    <label for="userid">User id</label>
+                    <input type="text" name="userid" id="userid" class="form-control pt-2" value="@Model.UserId">
+
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" class="form-control pt-2" value="@Model.Password">
+
+                    <label for="host">Host</label>
+                    <input type="text" name="host" id="host" class="form-control pt-2" value="@Model.Host">
+
+                    <label for="port">Port</label>
+                    <input type="number" name="port" id="port" class="form-control pt-2" value="@Model.Port">
+
+                    <label for="database">Database Name</label>
+                    <input type="text" name="database" id="database" class="form-control pt-2" value="@Model.Database">
+                    
+                    <input type="submit" class="btn-primary mt-2 circle-btn" value="Connect">
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+</body>
+</html>

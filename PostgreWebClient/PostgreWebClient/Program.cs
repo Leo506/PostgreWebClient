@@ -1,7 +1,12 @@
+using PostgreWebClient.Abstractions;
+using PostgreWebClient.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddSingleton<IConnectionService, ConnectionService>();
 
 var app = builder.Build();
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Net;
+using Microsoft.AspNetCore.Mvc;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.ViewModel;
 
@@ -14,8 +15,11 @@ public class ConnectionController : Controller
     }
 
     // GET
-    public IActionResult Index()
+    public ActionResult Index()
     {
+        var sessionId = Request?.Cookies["session_id"];
+        if (sessionId is not null && _connectionService.Connections.ContainsKey(sessionId))
+            return Redirect("/home");
         return View(new ConnectionViewModel());
     }
 
@@ -24,20 +28,26 @@ public class ConnectionController : Controller
     {
         if (!ModelState.IsValid)
             return BadRequest();
-        
-        if (Request?.Cookies["session_id"] is not null)
-            return Redirect("/home");
-        
+
         try
         {
             var sessionId = Guid.NewGuid().ToString();
-            Response?.Cookies.Append("session_id", sessionId);
-            _connectionService.Connect( sessionId, viewModel.ToConnectionString());
+           AttachCookies("session_id", sessionId);
+           _connectionService.Connect( sessionId, viewModel.ToConnectionString());
             return Redirect("/home");
         }
         catch (Exception e)
         {
             return BadRequest();
         }
+    }
+
+    private void AttachCookies(string key, string value, DateTimeOffset? expires = null)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            Expires = expires ?? DateTimeOffset.Now.AddHours(1)
+        };
+        Response?.Cookies.Append(key, value, cookieOptions);
     }
 }

@@ -3,13 +3,14 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Npgsql;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Controllers;
 using PostgreWebClient.ViewModel;
 
 namespace PostgreWebClient.UnitTests;
 
-public class ConnectionTests
+public partial class ConnectionTests
 {
     [Fact]
     public void Connect_AllGood_Returns_Redirect()
@@ -26,7 +27,7 @@ public class ConnectionTests
     }
 
     [Fact]
-    public void Connect_IncorrectConnectionString_Returns_BadRequest()
+    public void Connect_ConnectionServiceThrows_Returns_BadRequest()
     {
         // arrange
         var connectionServiceMock = new Mock<IConnectionService>();
@@ -40,29 +41,6 @@ public class ConnectionTests
 
         // assert
         result.Should().Be((int)HttpStatusCode.BadRequest);
-    }
-
-    [Fact]
-    public void Connect_GenerateSessionId_Success()
-    {
-        // arrange
-        var connectionServiceMock = new Mock<IConnectionService>();
-        var contextMock = new Mock<HttpContext>();
-        contextMock.Setup(context => context.Response.Cookies.Append("session_id", It.IsAny<string>())).Verifiable();
-
-        var sut = new ConnectionController(connectionServiceMock.Object)
-        {
-            ControllerContext = new ControllerContext()
-            {
-                HttpContext = contextMock.Object
-            }
-        };
-        // act
-        sut.Connect(MakeConnection());
-
-
-        // assert
-        contextMock.Verify();
     }
 
     [Fact]
@@ -83,10 +61,16 @@ public class ConnectionTests
     }
 
     [Fact]
-    public void Connect_ExistsSessionId_Returns_Redirect()
+    public void Index_ExistsSessionId_Returns_Redirect()
     {
         // arrange
         var connectionServiceMock = new Mock<IConnectionService>();
+        connectionServiceMock.SetupGet(service => service.Connections).Returns(
+            new Dictionary<string, NpgsqlConnection>()
+            {
+                ["guid"] = null
+            });
+        
         var contextMock = new Mock<HttpContext>();
         contextMock.Setup(context => context.Request.Cookies["session_id"]).Returns("guid");
 
@@ -99,7 +83,7 @@ public class ConnectionTests
         };
 
         // act
-        var response = sut.Connect(null);
+        var response = sut.Index();
         var result = response as RedirectResult;
 
         // assert

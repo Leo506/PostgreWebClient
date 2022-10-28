@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using PostgreWebClient.Abstractions;
-using PostgreWebClient.ViewModel;
+using PostgreWebClient.Models;
 
 namespace PostgreWebClient.Controllers;
 
@@ -20,11 +20,11 @@ public class ConnectionController : Controller
         var sessionId = Request?.Cookies["session_id"];
         if (sessionId is not null && _connectionService.Connections.ContainsKey(sessionId))
             return Redirect("/manipulation");
-        return View(new ConnectionViewModel());
+        return View(new ConnectionModel());
     }
 
     [HttpPost]
-    public ActionResult Connect(ConnectionViewModel viewModel)
+    public ActionResult Connect(ConnectionModel model)
     {
         if (!ModelState.IsValid)
             return BadRequest();
@@ -33,7 +33,7 @@ public class ConnectionController : Controller
         {
             var sessionId = Guid.NewGuid().ToString();
            AttachCookies("session_id", sessionId);
-           _connectionService.Connect( sessionId, viewModel.ToConnectionString());
+           _connectionService.Connect( sessionId, model.ToConnectionString());
             return Redirect("/manipulation");
         }
         catch (Exception e)

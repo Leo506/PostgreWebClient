@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PostgreWebClient.ViewModel;
+namespace PostgreWebClient.Models;
 
-public class ConnectionViewModel
+public class ConnectionModel
 {
     [Required]
     public string UserId { get; set; } = null!;

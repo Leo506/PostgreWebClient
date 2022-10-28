@@ -6,7 +6,7 @@ using Moq;
 using Npgsql;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Controllers;
-using PostgreWebClient.ViewModel;
+using PostgreWebClient.Models;
 
 namespace PostgreWebClient.UnitTests;
 
@@ -36,7 +36,7 @@ public partial class ConnectionTests
         var sut = new ConnectionController(connectionServiceMock.Object);
 
         // act
-        var response = sut.Connect(new ConnectionViewModel());
+        var response = sut.Connect(new ConnectionModel());
         var result = (response as BadRequestResult)!.StatusCode;
 
         // assert
@@ -90,9 +90,9 @@ public partial class ConnectionTests
         result.Should().NotBeNull();
     }
 
-    private static ConnectionViewModel MakeConnection()
+    private static ConnectionModel MakeConnection()
     {
-        return new ConnectionViewModel()
+        return new ConnectionModel()
         {
             UserId = "admin",
             Password = "password",

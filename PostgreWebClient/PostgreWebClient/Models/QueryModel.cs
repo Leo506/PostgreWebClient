@@ -1,7 +1,9 @@
 ﻿namespace PostgreWebClient.Models;
 
-public class QueryResultModel
+public class QueryModel
 {
+    public string QueryText { get; set; } = null!;
+    
     public List<int>? TableRows { get; set; }
 
     public List<object>? Rows { get; set; }

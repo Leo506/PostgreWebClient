@@ -1,16 +1,28 @@
-﻿
+﻿@model QueryModel
 @{
     ViewBag.Title = "Manipulation";
     Layout = "_Layout";
 }
 <script src="lib/ace-builds-1.5.0/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+
 <h2>Manipulation</h2>
 
-<div id="editor" class="editor"></div>
-    <script>
-        let editor = ace.edit("editor");
-        editor.setTheme("ace/theme/xcode");
-        editor.session.setMode("ace/mode/sql");
-    </script>
 
 
+<div class="center">
+    <form asp-action="ExecuteCommand" method="post">
+        @Html.HiddenFor(model => model.QueryText, new {@id = "hidden_query_text"})
+        <div id="editor" class="editor">@Model.QueryText</div>
+        <input type="submit" class="btn-primary">
+    </form>
+</div>
+
+<script>
+    let editor = ace.edit("editor");
+    editor.setTheme("ace/theme/xcode");
+    editor.session.setMode("ace/mode/sql");
+    
+    $("form").submit(function() {
+      $("#hidden_query_text").val(editor.getSession().getValue());
+    })
+</script>

@@ -10,7 +10,7 @@
 
 
 <div class="center">
-    <form asp-action="ExecuteCommand" method="post">
+    <form asp-action="Index" method="post">
         @Html.HiddenFor(model => model.QueryText, new {@id = "hidden_query_text"})
         <div id="editor" class="editor">@Model.QueryText</div>
         <input type="submit" class="btn-primary">

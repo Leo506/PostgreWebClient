@@ -22,7 +22,9 @@ public class ManipulationController : Controller
         return View(new QueryModel());
     }
 
+
     [HttpPost]
+    [ActionName("Index")]
     public ActionResult ExecuteCommand(QueryModel query)
     {
         return View("Index", query);

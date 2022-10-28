@@ -1,0 +1,16 @@
+﻿
+@{
+    ViewBag.Title = "Manipulation";
+    Layout = "_Layout";
+}
+<script src="lib/ace-builds-1.5.0/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+<h2>Manipulation</h2>
+
+<div id="editor" class="editor"></div>
+    <script>
+        let editor = ace.edit("editor");
+        editor.setTheme("ace/theme/xcode");
+        editor.session.setMode("ace/mode/sql");
+    </script>
+
+

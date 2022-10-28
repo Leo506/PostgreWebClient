@@ -19,7 +19,7 @@ public class ConnectionController : Controller
     {
         var sessionId = Request?.Cookies["session_id"];
         if (sessionId is not null && _connectionService.Connections.ContainsKey(sessionId))
-            return Redirect("/home");
+            return Redirect("/manipulation");
         return View(new ConnectionViewModel());
     }
 
@@ -34,7 +34,7 @@ public class ConnectionController : Controller
             var sessionId = Guid.NewGuid().ToString();
            AttachCookies("session_id", sessionId);
            _connectionService.Connect( sessionId, viewModel.ToConnectionString());
-            return Redirect("/home");
+            return Redirect("/manipulation");
         }
         catch (Exception e)
         {

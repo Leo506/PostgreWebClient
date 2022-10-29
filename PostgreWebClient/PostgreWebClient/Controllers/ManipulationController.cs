@@ -8,11 +8,13 @@ namespace PostgreWebClient.Controllers;
 public class ManipulationController : Controller
 {
     private readonly IConnectionService _connectionService;
+    private readonly ICommandService _commandService;
     
     // GET
-    public ManipulationController(IConnectionService connectionService)
+    public ManipulationController(IConnectionService connectionService, ICommandService commandService)
     {
         _connectionService = connectionService;
+        _commandService = commandService;
     }
 
     public ActionResult Index()
@@ -32,8 +34,7 @@ public class ManipulationController : Controller
         if (sessionId is null || !_connectionService.Connections.ContainsKey(sessionId))
             return Redirect("/Connection");
 
-        var commandService = new CommandService();
-        var result = commandService.ExecuteCommand(query, _connectionService.Connections[sessionId]);
+        var result = _commandService.ExecuteCommand(query, _connectionService.Connections[sessionId]);
         
         return View("Index", result);
     }

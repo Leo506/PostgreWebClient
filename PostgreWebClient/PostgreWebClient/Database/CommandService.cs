@@ -9,6 +9,13 @@ public class CommandService : ICommandService
     public QueryModel ExecuteCommand(QueryModel query, NpgsqlConnection connection)
     {
         var cmd = new NpgsqlCommand(query.QueryText, connection);
+        var result = new QueryModel()
+        {
+            Headers = new List<string>(),
+            Rows = new List<List<object>>(),
+            QueryText = query.QueryText
+        };
+
         try
         {
             var reader = cmd.ExecuteReader();
@@ -19,12 +26,7 @@ public class CommandService : ICommandService
                 return new QueryModel();
             }
 
-            var result = new QueryModel()
-            {
-                Headers = new List<string>(),
-                Rows = new List<List<object>>(),
-                QueryText = query.QueryText
-            };
+
             foreach (var column in reader.GetColumnSchema())
             {
                 result.Headers.Add(column.ColumnName);
@@ -35,7 +37,7 @@ public class CommandService : ICommandService
                 var row = result.Headers.Select(header => reader[header]).ToList();
                 result.Rows.Add(row);
             }
-            
+
             reader.Close();
             reader.Dispose();
 
@@ -43,11 +45,10 @@ public class CommandService : ICommandService
         }
         catch (Exception e)
         {
-            return new QueryModel()
-            {
-                HasError = true,
-                ErrorText = e.Message
-            };
+            result.HasError = true;
+            result.ErrorText = e.Message;
         }
+
+        return result;
     }
 }

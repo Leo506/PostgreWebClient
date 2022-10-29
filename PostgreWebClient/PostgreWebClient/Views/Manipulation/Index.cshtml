@@ -42,6 +42,11 @@
                     </table>
                 </div>
             }
+            
+            @if (Model.HasError)
+            {
+                <div class="text-danger">@Model.ErrorText</div>
+            }
         </div>
     </div>
 </div>

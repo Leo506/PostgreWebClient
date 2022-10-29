@@ -23,7 +23,10 @@ public class CommandService : ICommandService
             {
                 reader.Close();
                 reader.Dispose();
-                return new QueryModel();
+                return new QueryModel()
+                {
+                    QueryText = query.QueryText
+                };
             }
 
 

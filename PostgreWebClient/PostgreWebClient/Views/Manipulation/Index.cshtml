@@ -47,6 +47,15 @@
             {
                 <div class="text-danger">@Model.ErrorText</div>
             }
+            
+            @if (Model.Headers == null && !Model.HasError && !string.IsNullOrEmpty(Model.QueryText))
+            {
+                <div class="text-success">
+                    Query:<br/>
+                    @Model.QueryText<br/>
+                    Sussessfuly executed
+                </div>
+            }
         </div>
     </div>
 </div>

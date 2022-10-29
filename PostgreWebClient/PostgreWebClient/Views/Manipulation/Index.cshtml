@@ -18,6 +18,32 @@
                 <input type="submit" class="btn-primary mt-2">
             </form>
         </div>
+        <div class="col-sm">
+            @if (Model.Headers != null && !Model.HasError)
+            {
+                <table>
+                    <thead>
+                    <tr>
+                        @foreach (var header in Model.Headers!)
+                        {
+                            <th>@header</th>
+                        }
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var row in Model.Rows!)
+                    {
+                        <tr>
+                            @foreach (var column in row)
+                            {
+                                <td>@column.ToString()</td>
+                            }
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
     </div>
 </div>
 

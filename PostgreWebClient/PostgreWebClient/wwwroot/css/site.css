@@ -22,3 +22,16 @@ body {
   height: 100px;
   border: solid 3px orange;
 }
+
+
+th {
+  padding: 10px;
+  border: 1px solid black;
+  text-align: center;
+}
+
+td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid black;
+}

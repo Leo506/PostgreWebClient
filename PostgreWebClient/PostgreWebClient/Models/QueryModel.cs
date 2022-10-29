@@ -4,9 +4,9 @@ public class QueryModel
 {
     public string QueryText { get; set; } = null!;
     
-    public List<int>? TableRows { get; set; }
+    public List<string>? Headers { get; set; }
 
-    public List<object>? Rows { get; set; }
+    public List<List<object>>? Rows { get; set; }
 
     public bool HasError { get; set; } = false;
     

@@ -6,6 +6,13 @@ namespace PostgreWebClient.Database;
 
 public class CommandService : ICommandService
 {
+    private readonly IDatabaseInfoService _databaseInfoService;
+
+    public CommandService(IDatabaseInfoService databaseInfoService)
+    {
+        _databaseInfoService = databaseInfoService;
+    }
+
     public QueryModel ExecuteCommand(QueryModel query, NpgsqlConnection connection)
     {
         var cmd = new NpgsqlCommand(query.QueryText, connection);
@@ -18,6 +25,8 @@ public class CommandService : ICommandService
 
         try
         {
+            result.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(connection);
+            
             var reader = cmd.ExecuteReader();
             if (!reader.HasRows)
             {

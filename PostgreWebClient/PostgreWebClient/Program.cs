@@ -8,7 +8,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services
     .AddSingleton<IConnectionService, ConnectionService>()
-    .AddSingleton<ICommandService, CommandService>();
+    .AddSingleton<ICommandService, CommandService>()
+    .AddSingleton<IDatabaseInfoService, DatabaseInfoService>();
 
 var app = builder.Build();
 

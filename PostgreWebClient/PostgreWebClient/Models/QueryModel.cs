@@ -11,4 +11,6 @@ public class QueryModel
     public bool HasError { get; set; } = false;
     
     public string? ErrorText { get; set; }
+    
+    public DatabaseInfo? DatabaseInfo { get; set; }
 }

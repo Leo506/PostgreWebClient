@@ -11,52 +11,77 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-sm">
+        @*Database info*@
+        <div class="col-3">
+            @if (Model.DatabaseInfo?.Schemas != null)
+            {
+                <h4>Schemas</h4>
+                <ul id="myUl">
+                    @foreach (var schema in Model.DatabaseInfo?.Schemas)
+                    {
+                        <li><span class="caret">@schema.SchemaName</span>
+                            <ul class="nested">
+
+                                @foreach (var table in schema.Tables)
+                                {
+                                    <li>@table</li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+        
+        @*Editor*@
+        <div class="col">
             <form asp-action="Index" method="post">
                 @Html.HiddenFor(model => model.QueryText, new { @id = "hidden_query_text" })
                 <div id="editor" class="editor">@Model.QueryText</div>
                 <input type="submit" class="btn-primary mt-2">
             </form>
         </div>
-        <div class="col-sm">
-            @if (Model.Headers != null && !Model.HasError)
-            {
-                <div class="scrollable">
-                    <table>
-                        <tr>
-                            @foreach (var header in Model.Headers!)
-                            {
-                                <th>@header</th>
-                            }
-                        </tr>
 
-                        @foreach (var row in Model.Rows!)
-                        {
+        @*Query result*@
+        <div class="col">
+                @if (Model.Headers != null && !Model.HasError)
+                {
+                    <div class="scrollable">
+                        <table>
                             <tr>
-                                @foreach (var column in row)
+                                @foreach (var header in Model.Headers!)
                                 {
-                                    <td>@column.ToString()</td>
+                                    <th>@header</th>
                                 }
                             </tr>
-                        }
-                    </table>
-                </div>
-            }
-            
-            @if (Model.HasError)
-            {
-                <div class="text-danger">@Model.ErrorText</div>
-            }
-            
-            @if (Model.Headers == null && !Model.HasError && !string.IsNullOrEmpty(Model.QueryText))
-            {
-                <div class="text-success">
-                    Query:<br/>
-                    @Model.QueryText<br/>
-                    Sussessfuly executed
-                </div>
-            }
-        </div>
+
+                            @foreach (var row in Model.Rows!)
+                            {
+                                <tr>
+                                    @foreach (var column in row)
+                                    {
+                                        <td>@column.ToString()</td>
+                                    }
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                }
+
+                @if (Model.HasError)
+                {
+                    <div class="text-danger">@Model.ErrorText</div>
+                }
+
+                @if (Model.Headers == null && !Model.HasError && !string.IsNullOrEmpty(Model.QueryText))
+                {
+                    <div class="text-success">
+                        Query:<br/>
+                        @Model.QueryText<br/>
+                        Sussessfuly executed
+                    </div>
+                }
+            </div>
     </div>
 </div>
 
@@ -68,4 +93,14 @@
     $("form").submit(function() {
       $("#hidden_query_text").val(editor.getSession().getValue());
     })
+</script>
+
+<script>
+    let toggles = document.getElementsByClassName("caret");
+    for (let i = 0; i < toggles.length; i++) {
+        toggles[i].addEventListener("click", function () {
+            this.parentElement.querySelector(".nested").classList.toggle("active");
+            this.classList.toggle("caret-down");
+        })
+    }
 </script>

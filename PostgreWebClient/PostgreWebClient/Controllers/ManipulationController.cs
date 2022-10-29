@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PostgreWebClient.Abstractions;
-using PostgreWebClient.Database;
 using PostgreWebClient.Models;
 
 namespace PostgreWebClient.Controllers;

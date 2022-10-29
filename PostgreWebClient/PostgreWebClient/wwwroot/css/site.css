@@ -26,12 +26,32 @@ body {
 
 th {
   padding: 10px;
-  border: 1px solid black;
   text-align: center;
 }
 
 td {
   padding: 10px;
   text-align: left;
-  border: 1px solid black;
+}
+
+
+.scrollable {
+  overflow: scroll;
+  width: 700px;
+  height: 500px;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 2;
+}
+
+thead {
+  background-color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #ddd;
 }

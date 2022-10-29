@@ -21,27 +21,26 @@
         <div class="col-sm">
             @if (Model.Headers != null && !Model.HasError)
             {
-                <table>
-                    <thead>
-                    <tr>
-                        @foreach (var header in Model.Headers!)
-                        {
-                            <th>@header</th>
-                        }
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var row in Model.Rows!)
-                    {
+                <div class="scrollable">
+                    <table>
                         <tr>
-                            @foreach (var column in row)
+                            @foreach (var header in Model.Headers!)
                             {
-                                <td>@column.ToString()</td>
+                                <th>@header</th>
                             }
                         </tr>
-                    }
-                    </tbody>
-                </table>
+
+                        @foreach (var row in Model.Rows!)
+                        {
+                            <tr>
+                                @foreach (var column in row)
+                                {
+                                    <td>@column.ToString()</td>
+                                }
+                            </tr>
+                        }
+                    </table>
+                </div>
             }
         </div>
     </div>

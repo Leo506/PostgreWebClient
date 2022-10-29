@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PostgreWebClient.Abstractions;
+using PostgreWebClient.Database;
 using PostgreWebClient.Models;
 
 namespace PostgreWebClient.Controllers;
@@ -16,9 +17,9 @@ public class ManipulationController : Controller
 
     public ActionResult Index()
     {
-        /*var sessionId = Request?.Cookies["session_id"];
+        var sessionId = Request?.Cookies["session_id"];
         if (sessionId is null || !_connectionService.Connections.ContainsKey(sessionId))
-            return Redirect("/Connection");*/
+            return Redirect("/Connection");
         return View(new QueryModel());
     }
 
@@ -27,6 +28,13 @@ public class ManipulationController : Controller
     [ActionName("Index")]
     public ActionResult ExecuteCommand(QueryModel query)
     {
-        return View("Index", query);
+        var sessionId = Request?.Cookies["session_id"];
+        if (sessionId is null || !_connectionService.Connections.ContainsKey(sessionId))
+            return Redirect("/Connection");
+
+        var commandService = new CommandService();
+        var result = commandService.ExecuteCommand(query, _connectionService.Connections[sessionId]);
+        
+        return View("Index", result);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Npgsql;
 using PostgreWebClient.Abstractions;
 
-namespace PostgreWebClient.Data;
+namespace PostgreWebClient.Database;
 
 public class ConnectionService : IConnectionService
 {

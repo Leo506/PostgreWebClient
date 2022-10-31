@@ -1,5 +1,6 @@
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Database;
+using PostgreWebClient.Factories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,8 @@ builder.Services.AddControllersWithViews();
 builder.Services
     .AddSingleton<IConnectionService, ConnectionService>()
     .AddSingleton<ICommandService, CommandService>()
-    .AddSingleton<IDatabaseInfoService, DatabaseInfoService>();
+    .AddSingleton<IDatabaseInfoService, DatabaseInfoService>()
+    .AddSingleton<IExecutorFactory, NpgsqlExecutorFactory>();
 
 var app = builder.Build();
 

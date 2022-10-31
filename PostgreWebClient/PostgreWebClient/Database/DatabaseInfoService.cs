@@ -11,38 +11,54 @@ public class DatabaseInfoService : IDatabaseInfoService
 
     private const string QueryToGetTables = "select table_name " +
                                             "from information_schema.tables " +
-                                            "where table_schema = '{0}'";
-    
+                                            "where table_schema = '{0}' and " +
+                                            "table_type = 'BASE TABLE'";
+
+    private readonly IExecutorFactory _factory;
+
+    public DatabaseInfoService(IExecutorFactory factory)
+    {
+        _factory = factory;
+    }
+
     public DatabaseInfo GetDatabaseInfo(NpgsqlConnection connection)
     {
         var info = new DatabaseInfo()
         {
             Schemas = new List<SchemaModel>()
         };
-        
-        var schemaCmd = new NpgsqlCommand(QueryToGetAllSchemas, connection);
-        var schemaReader = schemaCmd.ExecuteReader();
-        while (schemaReader.Read())
+
+        try
         {
-            info.Schemas.Add(new SchemaModel()
+            var executor = _factory.GetExecutor(QueryToGetAllSchemas, connection);
+            
+            var schemasTable = executor.Execute();
+            foreach (var row in schemasTable.Rows!)
             {
-                SchemaName = schemaReader.GetString(0),
-                Tables = new List<string>()
-            });
-        }
-        schemaReader.Close();
-        schemaReader.Dispose();
-        
-        foreach (var schema in info.Schemas)
-        {
-            var cmd = new NpgsqlCommand(string.Format(QueryToGetTables, schema.SchemaName), connection);
-            var reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                schema.Tables.Add(reader.GetString(0));
+                info.Schemas.Add(new SchemaModel()
+                {
+                    SchemaName = row[0].ToString()!,
+                    Tables = new List<string>()
+                });
             }
-            reader.Close();
-            reader.Dispose();
+            
+
+            foreach (var schema in info.Schemas)
+            {
+                executor =
+                    _factory.GetExecutor(string.Format(QueryToGetTables, schema.SchemaName), connection);
+                
+                var resultTable = executor.Execute();
+                foreach (var row in resultTable.Rows!)
+                {
+                    schema.Tables.Add(row[0].ToString()!);
+                }
+                
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
 
         return info;

@@ -18,7 +18,7 @@ public class ManipulationTests
         // arrange
         var connectionServiceMock = new Mock<IConnectionService>();
         connectionServiceMock.Setup(service => service.Connections).Returns(new Dictionary<string, NpgsqlConnection>());
-        var sut = new ManipulationController(connectionServiceMock.Object, null);
+        var sut = new ManipulationController(connectionServiceMock.Object, null, null);
 
         // act
         var response = sut.Index();
@@ -35,7 +35,7 @@ public class ManipulationTests
         var connectionServiceMock = new Mock<IConnectionService>();
         connectionServiceMock.Setup(service => service.Connections).Returns(new Dictionary<string, NpgsqlConnection>());
 
-        var sut = new ManipulationController(connectionServiceMock.Object, null);
+        var sut = new ManipulationController(connectionServiceMock.Object, null, null);
 
         // act
         var response = sut.ExecuteCommand(default!);
@@ -62,7 +62,8 @@ public class ManipulationTests
         cmdServiceMock.Setup(service => service.ExecuteCommand(It.IsAny<QueryModel>(), It.IsAny<NpgsqlConnection>()))
             .Returns(new QueryModel());
 
-        var sut = new ManipulationController(connectionServiceMock.Object, cmdServiceMock.Object)
+        var sut = new ManipulationController(connectionServiceMock.Object, cmdServiceMock.Object,
+            new Mock<IDatabaseInfoService>().Object)
         {
             ControllerContext = new ControllerContext()
             {

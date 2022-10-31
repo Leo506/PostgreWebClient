@@ -8,12 +8,15 @@ public class ManipulationController : Controller
 {
     private readonly IConnectionService _connectionService;
     private readonly ICommandService _commandService;
+    private readonly IDatabaseInfoService _databaseInfoService;
     
     // GET
-    public ManipulationController(IConnectionService connectionService, ICommandService commandService)
+    public ManipulationController(IConnectionService connectionService, ICommandService commandService,
+        IDatabaseInfoService databaseInfoService)
     {
         _connectionService = connectionService;
         _commandService = commandService;
+        _databaseInfoService = databaseInfoService;
     }
 
     public ActionResult Index()
@@ -21,7 +24,9 @@ public class ManipulationController : Controller
         var sessionId = Request?.Cookies["session_id"];
         if (sessionId is null || !_connectionService.Connections.ContainsKey(sessionId))
             return Redirect("/Connection");
-        return View(new QueryModel());
+        var model = new QueryModel();
+        model.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(_connectionService.Connections[sessionId]);
+        return View(model);
     }
 
 
@@ -34,6 +39,7 @@ public class ManipulationController : Controller
             return Redirect("/Connection");
 
         var result = _commandService.ExecuteCommand(query, _connectionService.Connections[sessionId]);
+        result.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(_connectionService.Connections[sessionId]);
         
         return View("Index", result);
     }

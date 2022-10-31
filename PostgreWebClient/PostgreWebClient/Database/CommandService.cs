@@ -6,16 +6,15 @@ namespace PostgreWebClient.Database;
 
 public class CommandService : ICommandService
 {
-    private readonly IDatabaseInfoService _databaseInfoService;
+    private readonly IExecutorFactory _factory;
 
-    public CommandService(IDatabaseInfoService databaseInfoService)
+    public CommandService(IExecutorFactory factory)
     {
-        _databaseInfoService = databaseInfoService;
+        _factory = factory;
     }
 
     public QueryModel ExecuteCommand(QueryModel query, NpgsqlConnection connection)
     {
-        var cmd = new NpgsqlCommand(query.QueryText, connection);
         var result = new QueryModel()
         {
             Headers = new List<string>(),
@@ -25,33 +24,17 @@ public class CommandService : ICommandService
 
         try
         {
-            result.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(connection);
+            var executor = _factory.GetExecutor(query.QueryText, connection);
+            var table = executor.Execute();
+
+            if (table.Columns != null) result.Headers.AddRange(table.Columns);
+
+            if (table.Rows == null) return result;
             
-            var reader = cmd.ExecuteReader();
-            if (!reader.HasRows)
+            foreach (var row in table.Rows)
             {
-                reader.Close();
-                reader.Dispose();
-                return new QueryModel()
-                {
-                    QueryText = query.QueryText
-                };
-            }
-
-
-            foreach (var column in reader.GetColumnSchema())
-            {
-                result.Headers.Add(column.ColumnName);
-            }
-
-            while (reader.Read())
-            {
-                var row = result.Headers.Select(header => reader[header]).ToList();
                 result.Rows.Add(row);
             }
-
-            reader.Close();
-            reader.Dispose();
 
             return result;
         }

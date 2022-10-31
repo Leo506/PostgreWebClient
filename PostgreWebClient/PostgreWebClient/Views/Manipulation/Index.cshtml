@@ -21,11 +21,14 @@
                     {
                         <li><span class="caret">@schema.SchemaName</span>
                             <ul class="nested">
-
-                                @foreach (var table in schema.Tables)
-                                {
-                                    <li>@table</li>
-                                }
+                                <li><span class="caret">Tables</span>
+                                    <ul class="nested">
+                                        @foreach (var table in schema.Tables)
+                                        {
+                                            <li>@table</li>
+                                        }
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                     }
@@ -44,7 +47,7 @@
 
         @*Query result*@
         <div class="col">
-                @if (Model.Headers != null && !Model.HasError)
+                @if (Model.Headers?.Count != 0 && !Model.HasError)
                 {
                     <div class="scrollable">
                         <table>
@@ -73,7 +76,7 @@
                     <div class="text-danger">@Model.ErrorText</div>
                 }
 
-                @if (Model.Headers == null && !Model.HasError && !string.IsNullOrEmpty(Model.QueryText))
+                @if (Model.Headers?.Count == 0 && !Model.HasError && !string.IsNullOrEmpty(Model.QueryText))
                 {
                     <div class="text-success">
                         Query:<br/>

@@ -25,18 +25,27 @@
                                     <ul class="nested">
                                         @foreach (var table in schema.Tables)
                                         {
-                                            <li class="table-name" ondblclick=" 
-                                            {
-                                                console.log($(this).children().val());
-                                                editor.getSession().setValue('SELECT * FROM ' + $(this).children().val());
-                                                $('form').submit();
-                                            }">
+                                            <li class="table-name" ondblclick="onTableClick($(this))">
                                                 @table
                                                 <input type="hidden" value="@schema.SchemaName.@table"/>
                                             </li>
                                         }
                                     </ul>
                                 </li>
+                                <li><span class="caret">Views</span>
+                                    <ul class="nested">
+                                        @if (schema.Views != null)
+                                        {
+                                            foreach (var view in schema.Views)
+                                            {
+                                                <li class="table-name" ondblclick="onTableClick($(this))">
+                                                    @view
+                                                    <input type="hidden" value="@schema.SchemaName.@view"/>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                    </li>
                             </ul>
                         </li>
                     }
@@ -117,8 +126,9 @@
 </script>
 
 <script>
-    function onTableClick() {
-      $("#hidden_query_text").val("SELECT * FROM " + $(this).children().val());
-      console.log($(this));
+    function onTableClick(element) {
+      console.log($(element).children().val());
+      editor.getSession().setValue('SELECT * FROM ' + $(element).children().val());
+      $('form').submit();
     }
 </script>

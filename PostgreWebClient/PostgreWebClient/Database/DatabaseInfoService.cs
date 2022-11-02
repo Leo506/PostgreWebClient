@@ -14,6 +14,11 @@ public class DatabaseInfoService : IDatabaseInfoService
                                             "where table_schema = '{0}' and " +
                                             "table_type = 'BASE TABLE'";
 
+    private const string QueryToGetViews = "select table_name " +
+                                           "from information_schema.tables " +
+                                           "where table_schema = '{0}' and " +
+                                           "table_type = 'VIEW'";
+
     private readonly IExecutorFactory _factory;
 
     public DatabaseInfoService(IExecutorFactory factory)
@@ -53,7 +58,15 @@ public class DatabaseInfoService : IDatabaseInfoService
                 {
                     schema.Tables.Add(row[0].ToString()!);
                 }
-                
+
+                executor = _factory.GetExecutor(string.Format(QueryToGetViews, schema.SchemaName), connection);
+                resultTable = executor.Execute();
+                if (resultTable.Rows == null) continue;
+                schema.Views = new List<string>();
+                foreach (var row in resultTable.Rows)
+                {
+                    schema.Views.Add(row[0].ToString()!);
+                }
             }
         }
         catch (Exception e)

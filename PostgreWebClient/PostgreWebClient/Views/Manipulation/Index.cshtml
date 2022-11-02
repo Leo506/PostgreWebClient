@@ -17,7 +17,7 @@
             {
                 <h4>Schemas</h4>
                 <ul id="myUl">
-                    @foreach (var schema in Model.DatabaseInfo?.Schemas)
+                    @foreach (var schema in Model.DatabaseInfo?.Schemas!)
                     {
                         <li><span class="caret">@schema.SchemaName</span>
                             <ul class="nested">
@@ -25,7 +25,15 @@
                                     <ul class="nested">
                                         @foreach (var table in schema.Tables)
                                         {
-                                            <li>@table</li>
+                                            <li class="table-name" ondblclick=" 
+                                            {
+                                                console.log($(this).children().val());
+                                                editor.getSession().setValue('SELECT * FROM ' + $(this).children().val());
+                                                $('form').submit();
+                                            }">
+                                                @table
+                                                <input type="hidden" value="@schema.SchemaName.@table"/>
+                                            </li>
                                         }
                                     </ul>
                                 </li>
@@ -47,7 +55,7 @@
 
         @*Query result*@
         <div class="col">
-                @if (Model.Headers?.Count != 0 && !Model.HasError)
+                @if (Model.Headers != null && Model.Headers?.Count != 0 && !Model.HasError)
                 {
                     <div class="scrollable">
                         <table>
@@ -94,7 +102,7 @@
     editor.session.setMode("ace/mode/sql");
     
     $("form").submit(function() {
-      $("#hidden_query_text").val(editor.getSession().getValue());
+        $("#hidden_query_text").val(editor.getSession().getValue());
     })
 </script>
 
@@ -105,5 +113,12 @@
             this.parentElement.querySelector(".nested").classList.toggle("active");
             this.classList.toggle("caret-down");
         })
+    }
+</script>
+
+<script>
+    function onTableClick() {
+      $("#hidden_query_text").val("SELECT * FROM " + $(this).children().val());
+      console.log($(this));
     }
 </script>

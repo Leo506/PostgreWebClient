@@ -65,6 +65,11 @@ ul {
   margin: 0;
 }
 
+.table-name:hover {
+  background-color: grey;
+  cursor: pointer;
+}
+
 .caret {
   cursor: pointer;
   user-select: none;

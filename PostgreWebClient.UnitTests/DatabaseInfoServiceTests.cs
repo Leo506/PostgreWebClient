@@ -107,4 +107,54 @@ public class DatabaseInfoServiceTests
         // assert
         result.Schemas.Count.Should().Be(0);
     }
+
+    [Fact]
+    public void GetDatabaseInfo_NoViews_ReturnsSchemaWithoutViews()
+    {
+        // arrange
+        var notEmptyExecutor = new Mock<ICommandExecutor>();
+        notEmptyExecutor.Setup(executor => executor.Execute()).Returns(new Table()
+        {
+            Columns = new List<string>() { "Column1" },
+            Rows = new List<List<object>>()
+            {
+                new() { "row" }
+            }
+        });
+
+        var viewsExecutorMock = new Mock<ICommandExecutor>();
+        viewsExecutorMock.Setup(executor => executor.Execute()).Returns(new Table()
+        {
+            Columns = new List<string>(),
+            Rows = new List<List<object>>()
+        });
+
+
+        const string queryToGetAllSchemas = "select schema_name " +
+                                            "from information_schema.schemata";
+        const string queryToGetViews = "select table_name " +
+                                       "from information_schema.tables " +
+                                       "where table_schema = 'row' and " +
+                                       "table_type = 'VIEW'";
+        const string queryToGetTables = "select table_name " +
+                                        "from information_schema.tables " +
+                                        "where table_schema = 'row' and " +
+                                        "table_type = 'BASE TABLE'";
+        
+        var factoryMock = new Mock<IExecutorFactory>();
+        factoryMock.Setup(factory => factory.GetExecutor(queryToGetAllSchemas, It.IsAny<IDbConnection>()))
+            .Returns(notEmptyExecutor.Object);
+        factoryMock.Setup(factory => factory.GetExecutor(queryToGetTables, It.IsAny<IDbConnection>()))
+            .Returns(notEmptyExecutor.Object);
+        factoryMock.Setup(factory => factory.GetExecutor(queryToGetViews, It.IsAny<IDbConnection>()))
+            .Returns(viewsExecutorMock.Object);
+
+        var sut = new DatabaseInfoService(factoryMock.Object);
+        // act
+        var result = sut.GetDatabaseInfo(default!);
+
+        // assert
+        result.Schemas.Count.Should().Be(1);
+        result.Schemas[0].Views.Should().BeNull();
+    }
 }

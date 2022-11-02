@@ -61,7 +61,7 @@ public class DatabaseInfoService : IDatabaseInfoService
 
                 executor = _factory.GetExecutor(string.Format(QueryToGetViews, schema.SchemaName), connection);
                 resultTable = executor.Execute();
-                if (resultTable.Rows == null) continue;
+                if (resultTable.Rows == null || resultTable.Rows.Count == 0) continue;
                 schema.Views = new List<string>();
                 foreach (var row in resultTable.Rows)
                 {

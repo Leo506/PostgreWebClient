@@ -57,51 +57,61 @@
         <div class="col">
             <form asp-action="Index" method="post">
                 @Html.HiddenFor(model => model.QueryText, new { @id = "hidden_query_text" })
+                @Html.HiddenFor(model => model.Pagination.CurrentPage, new {@id = "hidden_page"});
                 <div id="editor" class="editor">@Model.QueryText</div>
-                <input type="submit" class="btn-primary mt-2">
+                <input type="submit" onclick="$('#hidden_page').val(1)" class="btn-primary mt-2">
             </form>
         </div>
 
         @*Query result*@
         <div class="col">
-                @if (Model.Headers != null && Model.Headers?.Count != 0 && !Model.HasError)
-                {
-                    <div class="scrollable">
-                        <table>
+            @if (Model.Headers != null && Model.Headers?.Count != 0 && !Model.HasError)
+            {
+                <div class="scrollable">
+                    <table>
+                        <tr>
+                            @foreach (var header in Model.Headers!)
+                            {
+                                <th>@header</th>
+                            }
+                        </tr>
+
+                        @foreach (var row in Model.Rows!)
+                        {
                             <tr>
-                                @foreach (var header in Model.Headers!)
+                                @foreach (var column in row)
                                 {
-                                    <th>@header</th>
+                                    <td>@column.ToString()</td>
                                 }
                             </tr>
+                        }
+                    </table>
+                </div>
+            }
 
-                            @foreach (var row in Model.Rows!)
-                            {
-                                <tr>
-                                    @foreach (var column in row)
-                                    {
-                                        <td>@column.ToString()</td>
-                                    }
-                                </tr>
-                            }
-                        </table>
-                    </div>
-                }
+            @if (Model.HasError)
+            {
+                <div class="text-danger">@Model.ErrorText</div>
+            }
 
-                @if (Model.HasError)
-                {
-                    <div class="text-danger">@Model.ErrorText</div>
-                }
-
-                @if (Model.Headers?.Count == 0 && !Model.HasError && !string.IsNullOrEmpty(Model.QueryText))
-                {
-                    <div class="text-success">
-                        Query:<br/>
-                        @Model.QueryText<br/>
-                        Sussessfuly executed
-                    </div>
-                }
-            </div>
+            @if (Model.Headers?.Count == 0 && !Model.HasError && !string.IsNullOrEmpty(Model.QueryText))
+            {
+                <div class="text-success">
+                    Query:<br/>
+                    @Model.QueryText<br/>
+                    Sussessfuly executed
+                </div>
+            }
+            
+            @if (Model.Pagination?.HasPreviousPage() == true)
+            {
+                <button onclick="changePage(-1)" class="btn btn-primary mt-2">Previous page</button>
+            }
+            @if (Model.Pagination?.HasNextPage() == true)
+            {
+                <button onclick="changePage(1)" class="btn btn-primary mt-2">Next page</button>
+            }
+        </div>
     </div>
 </div>
 
@@ -127,8 +137,20 @@
 
 <script>
     function onTableClick(element) {
+      $("#hidden_page").val(1);
       console.log($(element).children().val());
       editor.getSession().setValue('SELECT * FROM ' + $(element).children().val());
       $('form').submit();
+    }
+    
+    function changePage(offset) {
+      let pageId = "#hidden_page";
+      let page = Number($(pageId).val());
+      console.log(`Page value: ${page}`);
+      page += offset;
+      console.log(`New page value: ${page}`);
+      $(pageId).val(page);
+      editor.getSession().setValue($("#hidden_query_text").val());
+      $("form").submit();
     }
 </script>

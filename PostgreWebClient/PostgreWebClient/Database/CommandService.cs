@@ -19,12 +19,17 @@ public class CommandService : ICommandService
         {
             Headers = new List<string>(),
             Rows = new List<List<object>>(),
-            QueryText = query.QueryText
+            QueryText = query.QueryText,
+            Pagination = new PaginationModel()
+            {
+                CurrentPage = query.Pagination!.CurrentPage,
+                TotalRecordsCount = 0
+            }
         };
 
         try
         {
-            var executor = _factory.GetExecutor(query.QueryText, connection);
+            var executor = _factory.GetExecutor(PrepareQuery(query.QueryText, query.Pagination), connection);
             var table = executor.Execute();
 
             if (table.Columns != null) result.Headers.AddRange(table.Columns);
@@ -36,6 +41,9 @@ public class CommandService : ICommandService
                 result.Rows.Add(row);
             }
 
+            executor = _factory.GetExecutor(GetQueryToCount(query.QueryText), connection);
+            result.Pagination!.TotalRecordsCount = (long)(executor.Execute().Rows?[0][0] ?? 0);
+
             return result;
         }
         catch (Exception e)
@@ -45,5 +53,20 @@ public class CommandService : ICommandService
         }
 
         return result;
+    }
+
+
+    private static string PrepareQuery(string queryText, PaginationModel? pagination)
+    {
+        if (queryText.EndsWith(';')) queryText = queryText.Replace(";", "");
+        return
+            $"SELECT * FROM ({queryText}) as tmpTable LIMIT {PaginationModel.PageSize} " +
+            $"OFFSET {(pagination?.CurrentPage == 0 ? 0 : pagination!.CurrentPage - 1) * PaginationModel.PageSize}";
+    }
+
+    private static string GetQueryToCount(string queryText)
+    {
+        if (queryText.EndsWith(';')) queryText = queryText.Replace(";", "");
+        return $"SELECT COUNT(*) FROM ({queryText}) as tmpTable";
     }
 }

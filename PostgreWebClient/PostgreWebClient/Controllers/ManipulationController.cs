@@ -26,6 +26,11 @@ public class ManipulationController : Controller
             return Redirect("/Connection");
         var model = new QueryModel();
         model.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(_connectionService.Connections[sessionId]);
+        model.Pagination = new PaginationModel()
+        {
+            CurrentPage = 1,
+            TotalRecordsCount = 0
+        };
         return View(model);
     }
 

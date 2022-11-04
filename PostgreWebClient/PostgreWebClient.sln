@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostgreWebClient", "Postgre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostgreWebClient.UnitTests", "..\PostgreWebClient.UnitTests\PostgreWebClient.UnitTests.csproj", "{153077B3-B5D8-41B5-B53C-924C09D9A5A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostgreWebClient.UITests", "..\PostgreWebClient.UITests\PostgreWebClient.UITests.csproj", "{B168CD64-665F-4996-9FA9-A5EB23F6C1E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{153077B3-B5D8-41B5-B53C-924C09D9A5A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{153077B3-B5D8-41B5-B53C-924C09D9A5A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{153077B3-B5D8-41B5-B53C-924C09D9A5A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B168CD64-665F-4996-9FA9-A5EB23F6C1E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B168CD64-665F-4996-9FA9-A5EB23F6C1E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B168CD64-665F-4996-9FA9-A5EB23F6C1E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B168CD64-665F-4996-9FA9-A5EB23F6C1E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

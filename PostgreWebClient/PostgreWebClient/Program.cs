@@ -11,7 +11,8 @@ builder.Services
     .AddSingleton<IConnectionService, ConnectionService>()
     .AddSingleton<ICommandService, CommandService>()
     .AddSingleton<IDatabaseInfoService, DatabaseInfoService>()
-    .AddSingleton<IExecutorFactory, NpgsqlExecutorFactory>();
+    .AddSingleton<IExecutorFactory, NpgsqlExecutorFactory>()
+    .AddSingleton<IConnectionMaker, ConnectionMaker>();
 
 var app = builder.Build();
 

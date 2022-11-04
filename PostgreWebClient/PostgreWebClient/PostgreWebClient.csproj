@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="Npgsql" Version="6.0.7" />
+      <PackageReference Include="OperationResultCore" Version="4.0.0" />
     </ItemGroup>
 
 </Project>

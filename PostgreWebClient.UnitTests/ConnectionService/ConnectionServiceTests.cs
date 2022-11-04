@@ -2,11 +2,10 @@
 using FluentAssertions;
 using Moq;
 using PostgreWebClient.Abstractions;
-using PostgreWebClient.Database;
 
-namespace PostgreWebClient.UnitTests;
+namespace PostgreWebClient.UnitTests.ConnectionService;
 
-public class ConnectionServiceTests
+public partial class ConnectionServiceTests
 {
     [Fact]
     public void Connect_AllGood_AddConnection()
@@ -14,7 +13,7 @@ public class ConnectionServiceTests
         // arrange
         var makerMock = new Mock<IConnectionMaker>();
         makerMock.Setup(maker => maker.MakeConnection(It.IsAny<string>())).Returns(default(IDbConnection)!);
-        var sut = new ConnectionService(makerMock.Object);
+        var sut = new Database.ConnectionService(makerMock.Object);
 
         // act
         sut.Connect("key", "validConnString");
@@ -30,7 +29,7 @@ public class ConnectionServiceTests
         var makerMock = new Mock<IConnectionMaker>();
         makerMock.Setup(maker => maker.MakeConnection(It.IsAny<string>())).Throws(new Exception("error"));
 
-        var sut = new ConnectionService(makerMock.Object);
+        var sut = new Database.ConnectionService(makerMock.Object);
 
         // act
         var result = sut.Connect("key", "connString");

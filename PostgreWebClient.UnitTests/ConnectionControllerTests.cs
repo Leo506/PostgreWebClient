@@ -1,4 +1,5 @@
 using System.Net;
+using Calabonga.OperationResults;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +11,13 @@ using PostgreWebClient.Models;
 
 namespace PostgreWebClient.UnitTests;
 
-public partial class ConnectionTests
+public partial class ConnectionControllerTests
 {
     [Fact]
     public void Connect_AllGood_Returns_Redirect()
     {
         // arrange
-        var sut = new ConnectionController(new Mock<IConnectionService>().Object);
+        var sut = new ConnectionController(MakeConnectionService(false).Object);
 
         // act
         var response = sut.Connect(MakeConnection());
@@ -30,10 +31,7 @@ public partial class ConnectionTests
     public void Connect_ConnectionServiceThrows_Returns_BadRequest()
     {
         // arrange
-        var connectionServiceMock = new Mock<IConnectionService>();
-        connectionServiceMock.Setup(service => service.Connect(It.IsAny<string>(), It.IsAny<string>()))
-            .Throws(new Exception());
-        var sut = new ConnectionController(connectionServiceMock.Object);
+        var sut = new ConnectionController(MakeConnectionService(true).Object);
 
         // act
         var response = sut.Connect(new ConnectionModel());

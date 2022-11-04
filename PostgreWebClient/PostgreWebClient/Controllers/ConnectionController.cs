@@ -17,9 +17,10 @@ public class ConnectionController : Controller
     // GET
     public ActionResult Index()
     {
-        var sessionId = Request?.Cookies["session_id"];
+        var sessionId = Request.Cookies["session_id"];
         if (sessionId is not null && _connectionService.Connections.ContainsKey(sessionId))
             return Redirect("/manipulation");
+        
         return View(new ConnectionModel());
     }
 
@@ -28,18 +29,15 @@ public class ConnectionController : Controller
     {
         if (!ModelState.IsValid)
             return BadRequest();
-
-        try
-        {
-            var sessionId = Guid.NewGuid().ToString();
-           AttachCookies("session_id", sessionId);
-           _connectionService.Connect( sessionId, model.ToConnectionString());
+        
+        var sessionId = Guid.NewGuid().ToString();
+        AttachCookies("session_id", sessionId);
+        
+        var result = _connectionService.Connect( sessionId, model.ToConnectionString());
+        if (result.Ok)
             return Redirect("/manipulation");
-        }
-        catch (Exception e)
-        {
-            return BadRequest();
-        }
+        
+        return BadRequest();
     }
 
     private void AttachCookies(string key, string value, DateTimeOffset? expires = null)

@@ -44,8 +44,8 @@ public class ManipulationController : Controller
             return Redirect("/Connection");
 
         var result = _commandService.ExecuteCommand(query, _connectionService.Connections[sessionId]);
-        result.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(_connectionService.Connections[sessionId]);
+        //result.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(_connectionService.Connections[sessionId]);
         
-        return View("Index", result);
+        return View("Index");
     }
 }

@@ -1,67 +1,63 @@
 ﻿using System.Data;
+using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Database;
+using PostgreWebClient.Factories;
 using PostgreWebClient.Models;
+using PostgreWebClient.UnitTests.FixtureAttributes;
 
 namespace PostgreWebClient.UnitTests;
 
 public class CommandServiceTests
 {
-    [Fact]
-    public void ExecuteCommand_AllGood_Returns_QueryModel()
+    [Theory, AutoMoqData]
+    public void ExecuteCommand_AllGood_ReturnsResultOk(CommandService sut)
     {
-        // arrange
-        var executorMock = new Mock<ICommandExecutor>();
-        executorMock.Setup(executor => executor.Execute()).Returns(new Table()
-        {
-            Columns = new List<string>() { "Column" },
-            Rows = new List<List<object>>()
-            {
-                new() { 1 },
-                new() { 2 }
-            }
-        });
-        var factoryMock = new Mock<IExecutorFactory>();
-        factoryMock.Setup(factory => factory.GetExecutor(It.IsAny<string>(), It.IsAny<IDbConnection>()))
-            .Returns(executorMock.Object);
-        var sut = new CommandService(factoryMock.Object);
-
         // act
-        var result = sut.ExecuteCommand(new QueryModel()
-        {
-            QueryText = "SELECT 1"
-        }, default!);
+        var result = sut.ExecuteCommand(new QueryModel(),default!);
 
         // assert
-        result.Headers.Should().NotBeNull();
-        result.Headers!.Count.Should().NotBe(0);
-        result.Rows.Should().NotBeNull();
-        result.Rows!.Count.Should().NotBe(0);
+        result.Ok.Should().BeTrue();
     }
 
-    [Fact]
-    public void ExecuteCommand_ExecutorThrows_HasError_Set_True()
+    [Theory, AutoMoqData]
+    public void ExecuteCommand_AllGood_ReturnsTable([Frozen] Mock<ICommandExecutor> executor, CommandService sut)
     {
         // arrange
-        var executorMock = new Mock<ICommandExecutor>();
-        executorMock.Setup(executor => executor.Execute()).Throws(new Exception());
+        executor.Setup(commandExecutor => commandExecutor.Execute()).Returns(new Table()
+        {
+            Columns = new List<string>() { "Col" },
+            Rows = new List<List<object>>()
+            {
+                new() { 1 }
+            }
+        });
 
-        var factoryMock = new Mock<IExecutorFactory>();
-        factoryMock.Setup(factory => factory.GetExecutor(It.IsAny<string>(), It.IsAny<IDbConnection>()))
-            .Returns(executorMock.Object);
-
-        var sut = new CommandService(factoryMock.Object);
+        NpgsqlExecutorFactory.Executor = executor.Object;
 
         // act
-        var result = sut.ExecuteCommand(new QueryModel()
-        {
-            QueryText = "SELECT 1"
-        }, default!);
-
+        var result = sut.ExecuteCommand(new QueryModel(), default!);
 
         // assert
-        result.HasError.Should().BeTrue();
+        result.Result!.Columns.Should().Contain("Col");
+        result.Result!.Rows![0].Should().Contain(1);
+    }
+
+    [Theory, AutoMoqData]
+    public void ExecuteCommand_ExecutorThrows_ReturnsResultNotOk([Frozen] Mock<ICommandExecutor> executor,
+        CommandService sut)
+    {
+        // arrange
+        executor.Setup(commandExecutor => commandExecutor.Execute()).Throws(new Exception());
+
+        NpgsqlExecutorFactory.Executor = executor.Object;
+        
+        // act
+        var result = sut.ExecuteCommand(new QueryModel(), default!);
+
+        // assert
+        result.Ok.Should().BeFalse();
     }
 }

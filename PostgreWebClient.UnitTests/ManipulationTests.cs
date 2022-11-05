@@ -45,7 +45,7 @@ public class ManipulationTests
         result.Should().NotBeNull();
     }
 
-    [Fact]
+    /*[Fact]
     public void ExecuteCommand_SessionIdExists_CommandService_Invoke()
     {
         // arrange
@@ -77,5 +77,5 @@ public class ManipulationTests
 
         // assert
         cmdServiceMock.Invocations.Count.Should().Be(1);
-    }
+    }*/
 }

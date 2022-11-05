@@ -5,11 +5,12 @@ using PostgreWebClient.Executors;
 
 namespace PostgreWebClient.Factories;
 
-public class NpgsqlExecutorFactory : IExecutorFactory
-{
-    public ICommandExecutor GetExecutor(string query, IDbConnection connection)
+public static class NpgsqlExecutorFactory
+{ public static ICommandExecutor? Executor { get; set; } = null;
+
+    public static ICommandExecutor GetExecutor(string query, IDbConnection connection)
     {
-        return new NpgsqlCommandExecutor(query,
+        return Executor ?? new NpgsqlCommandExecutor(query,
             connection as NpgsqlConnection ?? throw new InvalidOperationException());
     }
 }

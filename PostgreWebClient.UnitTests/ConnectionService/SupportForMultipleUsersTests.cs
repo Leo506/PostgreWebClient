@@ -1,17 +1,15 @@
 ﻿using FluentAssertions;
 using Moq;
 using PostgreWebClient.Abstractions;
+using PostgreWebClient.UnitTests.FixtureAttributes;
 
 namespace PostgreWebClient.UnitTests.ConnectionService;
 
 public partial class ConnectionServiceTests
 {
-    [Fact]
-    public void Connect_TwoSameKeys_ReturnsResultNotOk()
+    [Theory, AutoMoqData]
+    public void Connect_TwoSameKeys_ReturnsResultNotOk(Database.ConnectionService sut)
     {
-        // arrange
-        var sut = new Database.ConnectionService(new Mock<IConnectionMaker>().Object);
-
         // act
         sut.Connect("key", "connString");
         var result = sut.Connect("key", "connString");

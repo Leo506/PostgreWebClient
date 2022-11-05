@@ -1,20 +1,17 @@
 ﻿using System.Data;
+using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using PostgreWebClient.Abstractions;
+using PostgreWebClient.UnitTests.FixtureAttributes;
 
 namespace PostgreWebClient.UnitTests.ConnectionService;
 
 public partial class ConnectionServiceTests
 {
-    [Fact]
-    public void Connect_AllGood_AddConnection()
+    [Theory, AutoMoqData]
+    public void Connect_AllGood_AddConnection(Database.ConnectionService sut)
     {
-        // arrange
-        var makerMock = new Mock<IConnectionMaker>();
-        makerMock.Setup(maker => maker.MakeConnection(It.IsAny<string>())).Returns(default(IDbConnection)!);
-        var sut = new Database.ConnectionService(makerMock.Object);
-
         // act
         sut.Connect("key", "validConnString");
 
@@ -22,14 +19,12 @@ public partial class ConnectionServiceTests
         (sut as IConnectionService).Connections.Count.Should().Be(1);
     }
 
-    [Fact]
-    public void Connect_MakeConnectionThrows_ReturnsResultNotOk()
+    [Theory, AutoMoqData]
+    public void Connect_MakeConnectionThrows_ReturnsResultNotOk([Frozen] Mock<IConnectionMaker> maker, 
+        Database.ConnectionService sut)
     {
         // arrange
-        var makerMock = new Mock<IConnectionMaker>();
-        makerMock.Setup(maker => maker.MakeConnection(It.IsAny<string>())).Throws(new Exception("error"));
-
-        var sut = new Database.ConnectionService(makerMock.Object);
+        maker.Setup(connectionMaker => connectionMaker.MakeConnection(It.IsAny<string>())).Throws(new Exception());
 
         // act
         var result = sut.Connect("key", "connString");

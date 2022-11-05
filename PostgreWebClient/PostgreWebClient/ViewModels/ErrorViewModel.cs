@@ -1,4 +1,4 @@
-namespace PostgreWebClient.Models;
+namespace PostgreWebClient.ViewModels;
 
 public class ErrorViewModel
 {

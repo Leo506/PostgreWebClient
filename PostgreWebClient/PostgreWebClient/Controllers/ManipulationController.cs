@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Models;
+using PostgreWebClient.ViewModels;
 
 namespace PostgreWebClient.Controllers;
 
@@ -25,13 +26,13 @@ public class ManipulationController : Controller
         if (sessionId is null || !_connectionService.Connections.ContainsKey(sessionId))
             return Redirect("/Connection");
         var model = new QueryModel();
-        model.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(_connectionService.Connections[sessionId]);
+        /*model.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(_connectionService.Connections[sessionId]);
         model.Pagination = new PaginationModel()
         {
             CurrentPage = 1,
             TotalRecordsCount = 0
-        };
-        return View(model);
+        };*/
+        return View(new QueryViewModel());
     }
 
 

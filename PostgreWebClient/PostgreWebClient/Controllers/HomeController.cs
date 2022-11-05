@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using PostgreWebClient.Models;
+using PostgreWebClient.ViewModels;
 
 namespace PostgreWebClient.Controllers;
 

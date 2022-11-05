@@ -1,9 +1,10 @@
-﻿using Npgsql;
+﻿using Calabonga.OperationResults;
+using Npgsql;
 using PostgreWebClient.Models;
 
 namespace PostgreWebClient.Abstractions;
 
 public interface IDatabaseInfoService
 {
-    DatabaseInfo GetDatabaseInfo(NpgsqlConnection connection);
+    OperationResult<DatabaseInfo> GetDatabaseInfo(NpgsqlConnection connection);
 }

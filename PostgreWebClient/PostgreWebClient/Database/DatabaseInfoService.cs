@@ -1,5 +1,7 @@
-﻿using Npgsql;
+﻿using Calabonga.OperationResults;
+using Npgsql;
 using PostgreWebClient.Abstractions;
+using PostgreWebClient.Factories;
 using PostgreWebClient.Models;
 
 namespace PostgreWebClient.Database;
@@ -18,29 +20,24 @@ public class DatabaseInfoService : IDatabaseInfoService
                                            "from information_schema.tables " +
                                            "where table_schema = '{0}' and " +
                                            "table_type = 'VIEW'";
+    
 
-    private readonly IExecutorFactory _factory;
-
-    public DatabaseInfoService(IExecutorFactory factory)
+    public OperationResult<DatabaseInfo> GetDatabaseInfo(NpgsqlConnection connection)
     {
-        _factory = factory;
-    }
-
-    public DatabaseInfo GetDatabaseInfo(NpgsqlConnection connection)
-    {
-        var info = new DatabaseInfo()
+        var result = OperationResult.CreateResult<DatabaseInfo>();
+        result.Result = new DatabaseInfo()
         {
             Schemas = new List<SchemaModel>()
         };
 
         try
         {
-            var executor = _factory.GetExecutor(QueryToGetAllSchemas, connection);
+            var executor = NpgsqlExecutorFactory.GetExecutor(QueryToGetAllSchemas, connection);
             
             var schemasTable = executor.Execute();
             foreach (var row in schemasTable.Rows!)
             {
-                info.Schemas.Add(new SchemaModel()
+                result.Result.Schemas.Add(new SchemaModel()
                 {
                     SchemaName = row[0].ToString()!,
                     Tables = new List<string>()
@@ -48,10 +45,10 @@ public class DatabaseInfoService : IDatabaseInfoService
             }
             
 
-            foreach (var schema in info.Schemas)
+            foreach (var schema in result.Result.Schemas)
             {
                 executor =
-                    _factory.GetExecutor(string.Format(QueryToGetTables, schema.SchemaName), connection);
+                    NpgsqlExecutorFactory.GetExecutor(string.Format(QueryToGetTables, schema.SchemaName), connection);
                 
                 var resultTable = executor.Execute();
                 foreach (var row in resultTable.Rows!)
@@ -59,7 +56,7 @@ public class DatabaseInfoService : IDatabaseInfoService
                     schema.Tables.Add(row[0].ToString()!);
                 }
 
-                executor = _factory.GetExecutor(string.Format(QueryToGetViews, schema.SchemaName), connection);
+                executor = NpgsqlExecutorFactory.GetExecutor(string.Format(QueryToGetViews, schema.SchemaName), connection);
                 resultTable = executor.Execute();
                 if (resultTable.Rows == null || resultTable.Rows.Count == 0) continue;
                 schema.Views = new List<string>();
@@ -71,9 +68,9 @@ public class DatabaseInfoService : IDatabaseInfoService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            result.AddError(e);
         }
 
-        return info;
+        return result;
     }
 }

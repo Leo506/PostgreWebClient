@@ -22,18 +22,49 @@ public class QueryPipelineService
 
     public QueryViewModel HandleQuery(QueryViewModel viewModel, IDbConnection connection)
     {
-        var newQuery = _paginationService.Paginate(viewModel.QueryModel.QueryText, viewModel.PaginationModel, connection);
+        var paginationResult = _paginationService.Paginate(viewModel.QueryModel.QueryText, viewModel.PaginationModel, connection);
+        if (!paginationResult.Ok)
+        {
+            return new QueryViewModel()
+            {
+                ErrorModel = new ErrorModel()
+                {
+                    ErrorText = paginationResult.Exception?.Message ?? string.Empty
+                }
+            };
+        }
 
+        var queryResult = _commandService.ExecuteCommand(paginationResult.Result!, (connection as NpgsqlConnection)!);
+        if (!queryResult.Ok)
+        {
+            return new QueryViewModel()
+            {
+                ErrorModel = new ErrorModel()
+                {
+                    ErrorText = queryResult.Exception?.Message ?? string.Empty
+                }
+            };
+        }
+
+        var infoResult = _databaseInfoService.GetDatabaseInfo((connection as NpgsqlConnection)!);
+        if (!infoResult.Ok)
+        {
+            return new QueryViewModel()
+            {
+                ErrorModel = new ErrorModel()
+                {
+                    ErrorText = infoResult.Exception?.Message ?? string.Empty
+                }
+            };
+        }
         var result = new QueryViewModel()
         {
             QueryModel = new QueryModel()
             {
-                QueryResultTable = _commandService.ExecuteCommand(newQuery.Result!, (connection as NpgsqlConnection)!)
-                    ?.Result
+                QueryResultTable = queryResult.Result
             },
 
-            DatabaseInfoModel = _databaseInfoService.GetDatabaseInfo((connection as NpgsqlConnection)!).Result ??
-                                new DatabaseInfo()
+            DatabaseInfoModel = infoResult.Result ?? new DatabaseInfo()
         };
         
         return result;

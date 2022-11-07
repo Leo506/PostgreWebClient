@@ -1,10 +1,14 @@
-﻿using AutoFixture.Xunit2;
+﻿using System.Data;
+using AutoFixture.Xunit2;
+using Calabonga.OperationResults;
 using FluentAssertions;
 using Moq;
+using Npgsql;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Database;
 using PostgreWebClient.Models;
 using PostgreWebClient.UnitTests.FixtureAttributes;
+using PostgreWebClient.UnitTests.Helpers;
 using PostgreWebClient.ViewModels;
 
 namespace PostgreWebClient.UnitTests.QueryPipelineTests;
@@ -33,9 +37,12 @@ public partial class QueryPipelineTests
     }
 
     [Theory, AutoMoqData]
-    public void HandleQuery_AllGood_CommandServiceInvoke([Frozen] Mock<ICommandService> command,
+    public void HandleQuery_AllGood_CommandServiceInvoke([Frozen] Mock<IPaginationService> pagination, [Frozen] Mock<ICommandService> command,
         QueryPipelineService sut)
     {
+        // arrange
+        QueryPipelineHelper.MakeDefaultPagination(pagination);
+        
         // act
         sut.HandleQuery(MakeViewModel(), default!);
 
@@ -44,9 +51,14 @@ public partial class QueryPipelineTests
     }
 
     [Theory, AutoMoqData]
-    public void HandleQuery_AllGood_DatabaseInfoServiceInvoke([Frozen] Mock<IDatabaseInfoService> databaseInfo,
+    public void HandleQuery_AllGood_DatabaseInfoServiceInvoke([Frozen] Mock<IPaginationService> pagination,
+        [Frozen] Mock<ICommandService> command, [Frozen] Mock<IDatabaseInfoService> databaseInfo,
         QueryPipelineService sut)
     {
+        // arrange
+        QueryPipelineHelper.MakeDefaultPagination(pagination);
+        QueryPipelineHelper.MakeDefaultCommand(command);
+
         // act
         sut.HandleQuery(MakeViewModel(), default!);
 
@@ -55,7 +67,7 @@ public partial class QueryPipelineTests
     }
 
 
-    private QueryViewModel MakeViewModel()
+    private static QueryViewModel MakeViewModel()
     {
         return new QueryViewModel()
         {

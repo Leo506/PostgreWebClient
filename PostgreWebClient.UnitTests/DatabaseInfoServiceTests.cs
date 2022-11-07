@@ -4,7 +4,6 @@ using FluentAssertions;
 using Moq;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Database;
-using PostgreWebClient.Factories;
 using PostgreWebClient.Models;
 using PostgreWebClient.UnitTests.FixtureAttributes;
 
@@ -16,13 +15,13 @@ public class DatabaseInfoServiceTests
     public void GetDatabaseInfo_AllGood_ReturnsResultOk([Frozen] Mock<ICommandExecutor> executor, DatabaseInfoService sut)
     {
         // arrange
-        executor.Setup(commandExecutor => commandExecutor.Execute()).Returns(new Table()
-        {
-            Columns = new List<string>(),
-            Rows = new List<List<object>>()
-        });
+        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
+            .Returns(new Table()
+            {
+                Columns = new List<string>(),
+                Rows = new List<List<object>>()
+            });
         
-        NpgsqlExecutorFactory.Executor = executor.Object;
         
         // act
         var result = sut.GetDatabaseInfo(default!);
@@ -35,16 +34,16 @@ public class DatabaseInfoServiceTests
     public void GetDatabaseInfo_AllGood_ReturnsInfo([Frozen] Mock<ICommandExecutor> executor, DatabaseInfoService sut)
     {
         // arrange
-        executor.Setup(commandExecutor => commandExecutor.Execute()).Returns(new Table()
-        {
-            Columns = new List<string>() { "Col" },
-            Rows = new List<List<object>>()
+        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
+            .Returns(new Table()
             {
-                new() { "Row" }
-            }
-        });
+                Columns = new List<string>() { "Col" },
+                Rows = new List<List<object>>()
+                {
+                    new() { "Row" }
+                }
+            });
 
-        NpgsqlExecutorFactory.Executor = executor.Object;
         
         // act
         var result = sut.GetDatabaseInfo(default!);
@@ -58,9 +57,8 @@ public class DatabaseInfoServiceTests
         DatabaseInfoService sut)
     {
         // arrange
-        executor.Setup(ex => ex.Execute()).Throws(new Exception());
+        executor.Setup(ex => ex.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>())).Throws(new Exception());
 
-        NpgsqlExecutorFactory.Executor = executor.Object;
         
         // act
         var result = sut.GetDatabaseInfo(default!);

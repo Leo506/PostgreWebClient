@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using System.Data;
+using Npgsql;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Models;
 
@@ -6,23 +7,10 @@ namespace PostgreWebClient.Executors;
 
 public class NpgsqlCommandExecutor : ICommandExecutor
 {
-    private readonly string _query;
-    private readonly NpgsqlConnection _connection;
 
-    public NpgsqlCommandExecutor(string query, NpgsqlConnection connection)
+    public Table Execute(string query, IDbConnection connection)
     {
-        _query = query;
-        _connection = connection;
-    }
-
-    public void Dispose()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Table Execute()
-    {
-        var cmd = new NpgsqlCommand(_query, _connection);
+        var cmd = new NpgsqlCommand(query, connection as NpgsqlConnection);
         var reader = cmd.ExecuteReader();
 
         var table = new Table()

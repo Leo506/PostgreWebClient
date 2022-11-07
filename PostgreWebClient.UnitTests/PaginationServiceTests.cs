@@ -1,9 +1,9 @@
-﻿using AutoFixture.Xunit2;
+﻿using System.Data;
+using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Database;
-using PostgreWebClient.Factories;
 using PostgreWebClient.Models;
 using PostgreWebClient.UnitTests.FixtureAttributes;
 
@@ -27,7 +27,7 @@ public class PaginationServiceTests
     }
 
     [Theory, AutoMoqData]
-    public void Paginate_AllGood_UsePaginationModel([Frozen] Mock<ICommandExecutor> executor)
+    public void Paginate_AllGood_UsePaginationModel([Frozen] Mock<ICommandExecutor> executor, PaginationService sut)
     {
         // arrange
         var expectedQuery =
@@ -36,7 +36,6 @@ public class PaginationServiceTests
         MakeExecutor(executor, new Table() { Rows = new List<List<object>>() { new() { 10 } } });
         executor.Name = "some name";
 
-        var sut = new PaginationService();
 
         
         // act
@@ -52,19 +51,17 @@ public class PaginationServiceTests
     }
 
     [Theory, AutoMoqData]
-    public void Paginate_AllGood_SetTotalRecordsCountInPaginationModel([Frozen] Mock<ICommandExecutor> executor)
+    public void Paginate_AllGood_SetTotalRecordsCountInPaginationModel([Frozen] Mock<ICommandExecutor> executor,
+        PaginationService sut)
     {
         // arrange
-        const string originalQuery = "SELECT * FROM TableName";
         var paginationModel = new PaginationModel();
 
         MakeExecutor(executor, new Table() { Rows = new List<List<object>>() { new() { 100 } } });
 
-        var sut = new PaginationService();
-
 
         // act
-        sut.Paginate(originalQuery, paginationModel, default!);
+        sut.Paginate(OriginalQuery, paginationModel, default!);
 
         // assert
         paginationModel.TotalRecordsCount.Should().Be(100);
@@ -72,14 +69,14 @@ public class PaginationServiceTests
 
     private static void MakeExecutor(Mock<ICommandExecutor> executor, Table? table = null)
     {
-        executor.Setup(commandExecutor => commandExecutor.Execute()).Returns(table ?? new Table()
-        {
-            Rows = new List<List<object>>()
+        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
+            .Returns(table ?? new Table()
             {
-                new() { 1 }
-            }
-        });
+                Rows = new List<List<object>>()
+                {
+                    new() { 1 }
+                }
+            });
 
-        NpgsqlExecutorFactory.Executor = executor.Object;
     }
 }

@@ -1,6 +1,5 @@
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Database;
-using PostgreWebClient.Factories;
 
 var builder = WebApplication.CreateBuilder(args);
 

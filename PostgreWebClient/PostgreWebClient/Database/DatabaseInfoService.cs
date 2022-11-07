@@ -1,7 +1,6 @@
 ﻿using Calabonga.OperationResults;
 using Npgsql;
 using PostgreWebClient.Abstractions;
-using PostgreWebClient.Factories;
 using PostgreWebClient.Models;
 
 namespace PostgreWebClient.Database;
@@ -20,7 +19,13 @@ public class DatabaseInfoService : IDatabaseInfoService
                                            "from information_schema.tables " +
                                            "where table_schema = '{0}' and " +
                                            "table_type = 'VIEW'";
-    
+
+    private readonly ICommandExecutor _executor;
+
+    public DatabaseInfoService(ICommandExecutor executor)
+    {
+        _executor = executor;
+    }
 
     public OperationResult<DatabaseInfo> GetDatabaseInfo(NpgsqlConnection connection)
     {
@@ -32,9 +37,8 @@ public class DatabaseInfoService : IDatabaseInfoService
 
         try
         {
-            var executor = NpgsqlExecutorFactory.GetExecutor(QueryToGetAllSchemas, connection);
             
-            var schemasTable = executor.Execute();
+            var schemasTable = _executor.Execute(QueryToGetAllSchemas, connection);
             foreach (var row in schemasTable.Rows!)
             {
                 result.Result.Schemas.Add(new SchemaModel()
@@ -47,17 +51,13 @@ public class DatabaseInfoService : IDatabaseInfoService
 
             foreach (var schema in result.Result.Schemas)
             {
-                executor =
-                    NpgsqlExecutorFactory.GetExecutor(string.Format(QueryToGetTables, schema.SchemaName), connection);
-                
-                var resultTable = executor.Execute();
+                var resultTable = _executor.Execute(string.Format(QueryToGetTables, schema.SchemaName), connection);
                 foreach (var row in resultTable.Rows!)
                 {
                     schema.Tables.Add(row[0].ToString()!);
                 }
 
-                executor = NpgsqlExecutorFactory.GetExecutor(string.Format(QueryToGetViews, schema.SchemaName), connection);
-                resultTable = executor.Execute();
+                resultTable = _executor.Execute(string.Format(QueryToGetViews, schema.SchemaName), connection);
                 if (resultTable.Rows == null || resultTable.Rows.Count == 0) continue;
                 schema.Views = new List<string>();
                 foreach (var row in resultTable.Rows)

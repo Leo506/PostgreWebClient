@@ -1,8 +1,9 @@
-﻿using PostgreWebClient.Models;
+﻿using System.Data;
+using PostgreWebClient.Models;
 
 namespace PostgreWebClient.Abstractions;
 
 public interface ICommandExecutor
 {
-    Table Execute();
+    Table Execute(string query, IDbConnection connection);
 }

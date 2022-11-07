@@ -4,7 +4,6 @@ using FluentAssertions;
 using Moq;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Database;
-using PostgreWebClient.Factories;
 using PostgreWebClient.Models;
 using PostgreWebClient.UnitTests.FixtureAttributes;
 
@@ -13,11 +12,8 @@ namespace PostgreWebClient.UnitTests;
 public class CommandServiceTests
 {
     [Theory, AutoMoqData]
-    public void ExecuteCommand_AllGood_ReturnsResultOk([Frozen] Mock<ICommandExecutor> executor, CommandService sut)
+    public void ExecuteCommand_AllGood_ReturnsResultOk(CommandService sut)
     {
-        // arrange
-        NpgsqlExecutorFactory.Executor = executor.Object;
-        
         // act
         var result = sut.ExecuteCommand(new QueryModel(),default!);
 
@@ -26,22 +22,20 @@ public class CommandServiceTests
     }
 
     
-    // TODO: sometimes failed; need to find out why
     [Theory, AutoMoqData]
     public void ExecuteCommand_AllGood_ReturnsTable([Frozen] Mock<ICommandExecutor> executor, CommandService sut)
     {
         // arrange
-        executor.Setup(commandExecutor => commandExecutor.Execute()).Returns(new Table()
-        {
-            Columns = new List<string>() { "Col" },
-            Rows = new List<List<object>>()
+        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
+            .Returns(new Table()
             {
-                new() { 1 }
-            }
-        });
-
-        NpgsqlExecutorFactory.Executor = executor.Object;
-
+                Columns = new List<string>() { "Col" },
+                Rows = new List<List<object>>()
+                {
+                    new() { 1 }
+                }
+            });
+        
         // act
         var result = sut.ExecuteCommand(new QueryModel(), default!);
 
@@ -55,9 +49,9 @@ public class CommandServiceTests
         CommandService sut)
     {
         // arrange
-        executor.Setup(commandExecutor => commandExecutor.Execute()).Throws(new Exception());
+        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
+            .Throws(new Exception());
 
-        NpgsqlExecutorFactory.Executor = executor.Object;
         
         // act
         var result = sut.ExecuteCommand(new QueryModel(), default!);

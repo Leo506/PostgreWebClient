@@ -23,7 +23,7 @@ public class PaginationServiceTests
         var newQuery = sut.Paginate(OriginalQuery, new PaginationModel(), default!);
 
         // assert
-        newQuery.Should().NotBe(OriginalQuery);
+        newQuery.Result.Should().NotBe(OriginalQuery);
     }
 
     [Theory, AutoMoqData]
@@ -34,10 +34,7 @@ public class PaginationServiceTests
             $"SELECT * FROM ({OriginalQuery}) as TmpTable OFFSET 0 LIMIT {PaginationModel.PageSize}";
         
         MakeExecutor(executor, new Table() { Rows = new List<List<object>>() { new() { 10 } } });
-        executor.Name = "some name";
 
-
-        
         // act
         var newQuery = sut.Paginate(OriginalQuery, new PaginationModel()
         {
@@ -46,8 +43,7 @@ public class PaginationServiceTests
         }, default!);
 
         // assert
-        executor.Invocations.Count.Should().Be(1);
-        newQuery.Should().Be(expectedQuery);
+        newQuery.Result.Should().Be(expectedQuery);
     }
 
     [Theory, AutoMoqData]
@@ -65,6 +61,21 @@ public class PaginationServiceTests
 
         // assert
         paginationModel.TotalRecordsCount.Should().Be(100);
+    }
+
+    [Theory, AutoMoqData]
+    public void Paginate_ExecutorThrows_ReturnsResultNotOk([Frozen] Mock<ICommandExecutor> executor,
+        PaginationService sut)
+    {
+        // arrange
+        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
+            .Throws(new Exception());
+
+        // act
+        var result = sut.Paginate(OriginalQuery, new PaginationModel(), default!);
+
+        // assert
+        result.Ok.Should().BeFalse();
     }
 
     private static void MakeExecutor(Mock<ICommandExecutor> executor, Table? table = null)

@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Calabonga.OperationResults;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Models;
 
@@ -14,12 +15,23 @@ public class PaginationService
         _executor = executor;
     }
 
-    public string Paginate(string query, PaginationModel paginationModel, IDbConnection connection)
+    public OperationResult<string> Paginate(string query, PaginationModel paginationModel, IDbConnection connection)
     {
-        var totalCount = (int)_executor.Execute(QueryToCount, connection).Rows![0][0];
-        paginationModel.TotalRecordsCount = totalCount;
-        return
-            $"SELECT * FROM ({query}) as TmpTable OFFSET {(paginationModel.CurrentPage - 1) * PaginationModel.PageSize} " +
-            $"LIMIT {PaginationModel.PageSize}";
+        var result = OperationResult.CreateResult<string>();
+        try
+        {
+            var totalCount = (int)_executor.Execute(QueryToCount, connection).Rows![0][0];
+            paginationModel.TotalRecordsCount = totalCount;
+            result.Result =
+                $"SELECT * FROM ({query}) as TmpTable OFFSET {(paginationModel.CurrentPage - 1) * PaginationModel.PageSize} " +
+                $"LIMIT {PaginationModel.PageSize}";
+        }
+        catch (Exception e)
+        {
+            result.AddError(e);
+        }
+
+        return result;
+        
     }
 }

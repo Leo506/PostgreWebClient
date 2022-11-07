@@ -5,7 +5,7 @@ using PostgreWebClient.Models;
 
 namespace PostgreWebClient.Database;
 
-public class PaginationService
+public class PaginationService : IPaginationService
 {
     private const string QueryToCount = "SELECT COUNT(*) FROM ({0}) as TmpTable";
     private readonly ICommandExecutor _executor;

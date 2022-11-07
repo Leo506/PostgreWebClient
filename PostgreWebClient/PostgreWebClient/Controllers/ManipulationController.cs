@@ -44,7 +44,7 @@ public class ManipulationController : Controller
         if (sessionId is null || !_connectionService.Connections.ContainsKey(sessionId))
             return Redirect("/Connection");
 
-        var result = _commandService.ExecuteCommand(query, _connectionService.Connections[sessionId]);
+        _commandService.ExecuteCommand(query.QueryText, _connectionService.Connections[sessionId]);
         //result.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(_connectionService.Connections[sessionId]);
         
         return View("Index");

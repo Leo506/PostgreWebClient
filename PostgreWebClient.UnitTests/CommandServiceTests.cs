@@ -15,7 +15,7 @@ public class CommandServiceTests
     public void ExecuteCommand_AllGood_ReturnsResultOk(CommandService sut)
     {
         // act
-        var result = sut.ExecuteCommand(new QueryModel(),default!);
+        var result = sut.ExecuteCommand("",default!);
 
         // assert
         result.Ok.Should().BeTrue();
@@ -37,7 +37,7 @@ public class CommandServiceTests
             });
         
         // act
-        var result = sut.ExecuteCommand(new QueryModel(), default!);
+        var result = sut.ExecuteCommand("", default!);
 
         // assert
         result.Result!.Columns.Should().Contain("Col");
@@ -54,7 +54,7 @@ public class CommandServiceTests
 
         
         // act
-        var result = sut.ExecuteCommand(new QueryModel(), default!);
+        var result = sut.ExecuteCommand("", default!);
 
         // assert
         result.Ok.Should().BeFalse();

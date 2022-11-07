@@ -14,13 +14,13 @@ public class CommandService : ICommandService
         _executor = executor;
     }
 
-    public OperationResult<Table> ExecuteCommand(QueryModel query, NpgsqlConnection connection)
+    public OperationResult<Table> ExecuteCommand(string query, NpgsqlConnection connection)
     {
         var result = OperationResult.CreateResult<Table>();
 
         try
         {
-            result.Result = _executor.Execute(query.QueryText, connection);
+            result.Result = _executor.Execute(query, connection);
         }
         catch (Exception e)
         {

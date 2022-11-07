@@ -6,6 +6,7 @@ using Moq;
 using Npgsql;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Controllers;
+using PostgreWebClient.Models;
 using PostgreWebClient.UnitTests.FixtureAttributes;
 
 namespace PostgreWebClient.UnitTests;
@@ -53,7 +54,7 @@ public class ManipulationControllerTests
         };
 
         // act
-        sut.ExecuteCommand(default!);
+        sut.ExecuteCommand(new QueryModel() {QueryText = ""});
 
 
         // assert

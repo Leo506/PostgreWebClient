@@ -6,7 +6,8 @@ using PostgreWebClient.Executors;
 namespace PostgreWebClient.Factories;
 
 public static class NpgsqlExecutorFactory
-{ public static ICommandExecutor? Executor { get; set; } = null;
+{ 
+    public static ICommandExecutor? Executor { get; set; } = null;
 
     public static ICommandExecutor GetExecutor(string query, IDbConnection connection)
     {

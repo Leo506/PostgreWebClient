@@ -13,8 +13,11 @@ namespace PostgreWebClient.UnitTests;
 public class CommandServiceTests
 {
     [Theory, AutoMoqData]
-    public void ExecuteCommand_AllGood_ReturnsResultOk(CommandService sut)
+    public void ExecuteCommand_AllGood_ReturnsResultOk([Frozen] Mock<ICommandExecutor> executor, CommandService sut)
     {
+        // arrange
+        NpgsqlExecutorFactory.Executor = executor.Object;
+        
         // act
         var result = sut.ExecuteCommand(new QueryModel(),default!);
 
@@ -22,6 +25,8 @@ public class CommandServiceTests
         result.Ok.Should().BeTrue();
     }
 
+    
+    // TODO: sometimes failed; need to find out why
     [Theory, AutoMoqData]
     public void ExecuteCommand_AllGood_ReturnsTable([Frozen] Mock<ICommandExecutor> executor, CommandService sut)
     {

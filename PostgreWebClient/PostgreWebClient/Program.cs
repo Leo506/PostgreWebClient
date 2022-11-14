@@ -1,3 +1,4 @@
+using PostgreWebClient;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Database;
 using PostgreWebClient.Executors;
@@ -15,7 +16,8 @@ builder.Services
     .AddSingleton<IConnectionMaker, ConnectionMaker>()
     .AddSingleton<IQueryPipeline, QueryPipelineService>()
     .AddSingleton<IPaginationService, PaginationService>()
-    .AddTransient<ICommandExecutor, NpgsqlCommandExecutor>();
+    .AddTransient<ICommandExecutor, NpgsqlCommandExecutor>()
+    .AddSignalR();
 
 var app = builder.Build();
 
@@ -33,6 +35,11 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ManipulationHub>("/manipHub");
+});
 
 app.MapControllerRoute(
     name: "default",

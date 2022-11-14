@@ -3,123 +3,31 @@
     ViewBag.Title = "Manipulation";
     Layout = "_Layout";
 }
+
 <script src="lib/ace-builds-1.5.0/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
 
+
 <h2>Manipulation</h2>
-
-
 
 <div class="container">
     <div class="row">
         @*Database info*@
         <div class="col-3">
-            
             <h4>Schemas</h4>
-            <ul id="myUl">
-                @if (Model.DatabaseInfoModel?.Schemas != null)
-                {
-                    @foreach (var schema in Model.DatabaseInfoModel.Schemas)
-                    {
-                        <li><span class="caret">@schema.SchemaName</span>
-                            <ul class="nested">
-                                <li><span class="caret">Tables</span>
-                                    <ul class="nested">
-                                        @foreach (var table in schema.Tables)
-                                        {
-                                            <li class="table-name" ondblclick="onTableClick($(this))">
-                                                @table
-                                                <input type="hidden" value="@(schema.SchemaName).@table"/>
-                                            </li>
-                                        }
-                                    </ul>
-                                </li>
-                                <li><span class="caret">Views</span>
-                                    <ul class="nested">
-                                        @if (schema.Views != null)
-                                        {
-                                            foreach (var view in schema.Views)
-                                            {
-                                                <li class="table-name" ondblclick="onTableClick($(this))">
-                                                    @view
-                                                    <input type="hidden" value="@(schema.SchemaName).@view"/>
-                                                </li>
-                                            }
-                                        }
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                    }
-                }
-            </ul>
+            <ul id="myUl"></ul>
         </div>
         
         @*Editor*@
         <div class="col">
-            <form asp-action="Index" method="post">
-                @Html.HiddenFor(model => model.QueryModel.QueryText, new { @id = "hidden_query_text" })
-                @Html.HiddenFor(model => model.PaginationModel.CurrentPage, new {@id = "hidden_page"})
-                <div id="editor" class="editor">@Model.QueryModel.QueryText</div>
-                <input type="submit" onclick="$('#hidden_page').val(1)" class="btn-primary mt-2">
-            </form>
+            <div id="editor" class="editor">@Model.QueryModel.QueryText</div>
+            <button id="sendButton" class="btn-primary mt-2">Send</button>
         </div>
 
         @*Query result*@
         <div class="col">
-            @if (Model.QueryModel.QueryResultTable != null && 
-                 Model.QueryModel.QueryResultTable.Columns?.Count != 0 && 
-                 Model.ErrorModel is null)
-            {
-                <div class="scrollable">
-                    <table>
-                        <tr>
-                            @foreach (var header in Model.QueryModel.QueryResultTable.Columns!)
-                            {
-                                <th>@header</th>
-                            }
-                        </tr>
-
-                        @foreach (var row in Model.QueryModel.QueryResultTable.Rows!)
-                        {
-                            <tr>
-                                @foreach (var column in row)
-                                {
-                                    <td>@column.ToString()</td>
-                                }
-                            </tr>
-                        }
-                    </table>
-                </div>
-            }
-
-            @if (Model.ErrorModel != null)
-            {
-                <div class="text-danger">@Model.ErrorModel.ErrorText</div>
-            }
-
-            @if (Model.QueryModel.QueryResultTable != null && 
-                 Model.ErrorModel != null && 
-                 !string.IsNullOrEmpty(Model.QueryModel.QueryText))
-            {
-                <div class="text-success">
-                    Query:<br/>
-                    @Model.QueryModel.QueryText<br/>
-                    Sussessfuly executed
-                </div>
-            }
-            
-            @if (Model.PaginationModel != null)
-            {
-
-                @if (Model.PaginationModel.HasPreviousPage())
-                {
-                    <button onclick="changePage(-1)" class="btn btn-primary mt-2">Previous page</button>
-                }
-                @if (Model.PaginationModel.HasNextPage())
-                {
-                    <button onclick="changePage(1)" class="btn btn-primary mt-2">Next page</button>
-                }
-            }
+            <div class="scrollable">
+                <table id="resultTable"></table>
+            </div>
         </div>
     </div>
 </div>
@@ -128,38 +36,7 @@
     let editor = ace.edit("editor");
     editor.setTheme("ace/theme/xcode");
     editor.session.setMode("ace/mode/sql");
-    
-    $("form").submit(function() {
-        $("#hidden_query_text").val(editor.getSession().getValue());
-    })
 </script>
 
-<script>
-    let toggles = document.getElementsByClassName("caret");
-    for (let i = 0; i < toggles.length; i++) {
-        toggles[i].addEventListener("click", function () {
-            this.parentElement.querySelector(".nested").classList.toggle("active");
-            this.classList.toggle("caret-down");
-        })
-    }
-</script>
-
-<script>
-    function onTableClick(element) {
-      $("#hidden_page").val(1);
-      console.log($(element).children().val());
-      editor.getSession().setValue('SELECT * FROM ' + $(element).children().val());
-      $('form').submit();
-    }
-    
-    function changePage(offset) {
-      let pageId = "#hidden_page";
-      let page = Number($(pageId).val());
-      console.log(`Page value: ${page}`);
-      page += offset;
-      console.log(`New page value: ${page}`);
-      $(pageId).val(page);
-      editor.getSession().setValue($("#hidden_query_text").val());
-      $("form").submit();
-    }
-</script>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/manipulation.js"></script>

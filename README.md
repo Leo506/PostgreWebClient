@@ -1,3 +1,4 @@
+[![build and test](https://github.com/Leo506/PostgreWebClient/actions/workflows/build-and-test.yaml/badge.svg?branch=main)](https://github.com/Leo506/PostgreWebClient/actions/workflows/build-and-test.yaml)
 # PostgreWebClient
 Web-client for work with PostgreSQL
 ---

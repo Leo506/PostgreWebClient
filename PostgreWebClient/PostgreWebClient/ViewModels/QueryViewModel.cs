@@ -8,7 +8,7 @@ public class QueryViewModel
 
     public ErrorModel? ErrorModel { get; set; }
 
-    public PaginationModel PaginationModel { get; set; } = null!;
+    public PaginationModel? PaginationModel { get; set; }
 
     public DatabaseInfo DatabaseInfoModel { get; set; } = null!;
 }

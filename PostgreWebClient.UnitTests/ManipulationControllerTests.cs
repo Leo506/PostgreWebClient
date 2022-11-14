@@ -8,6 +8,7 @@ using PostgreWebClient.Abstractions;
 using PostgreWebClient.Controllers;
 using PostgreWebClient.Models;
 using PostgreWebClient.UnitTests.FixtureAttributes;
+using PostgreWebClient.ViewModels;
 
 namespace PostgreWebClient.UnitTests;
 
@@ -36,8 +37,8 @@ public class ManipulationControllerTests
     }
 
     [Theory, AutoMoqData]
-    public void ExecuteCommand_SessionIdExists_CommandServiceInvoke([Frozen] Mock<IConnectionService> connService,
-        [Frozen] Mock<ICommandService> cmdService, [Greedy] ManipulationController sut)
+    public void ExecuteCommand_SessionIdExists_QueryPipelineServiceInvoke([Frozen] Mock<IConnectionService> connService,
+        [Frozen] Mock<IQueryPipeline> queryPipeline, [Greedy] ManipulationController sut)
     {
         // arrange
         connService.Setup(service => service.Connections).Returns(new Dictionary<string, NpgsqlConnection>()
@@ -54,10 +55,10 @@ public class ManipulationControllerTests
         };
 
         // act
-        sut.ExecuteCommand(new QueryModel() {QueryText = ""});
+        sut.ExecuteCommand(new QueryViewModel());
 
 
         // assert
-        cmdService.Invocations.Count.Should().Be(1);
+        queryPipeline.Invocations.Count.Should().Be(1);
     }
 }

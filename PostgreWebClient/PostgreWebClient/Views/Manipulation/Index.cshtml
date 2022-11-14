@@ -16,37 +16,40 @@
             
             <h4>Schemas</h4>
             <ul id="myUl">
-                @foreach (var schema in Model.DatabaseInfoModel.Schemas)
+                @if (Model.DatabaseInfoModel?.Schemas != null)
                 {
-                    <li><span class="caret">@schema.SchemaName</span>
-                        <ul class="nested">
-                            <li><span class="caret">Tables</span>
-                                <ul class="nested">
-                                    @foreach (var table in schema.Tables)
-                                    {
-                                        <li class="table-name" ondblclick="onTableClick($(this))">
-                                            @table
-                                            <input type="hidden" value="@(schema.SchemaName).@table"/>
-                                        </li>
-                                    }
-                                </ul>
-                            </li>
-                            <li><span class="caret">Views</span>
-                                <ul class="nested">
-                                    @if (schema.Views != null)
-                                    {
-                                        foreach (var view in schema.Views)
+                    @foreach (var schema in Model.DatabaseInfoModel.Schemas)
+                    {
+                        <li><span class="caret">@schema.SchemaName</span>
+                            <ul class="nested">
+                                <li><span class="caret">Tables</span>
+                                    <ul class="nested">
+                                        @foreach (var table in schema.Tables)
                                         {
                                             <li class="table-name" ondblclick="onTableClick($(this))">
-                                                @view
-                                                <input type="hidden" value="@(schema.SchemaName).@view"/>
+                                                @table
+                                                <input type="hidden" value="@(schema.SchemaName).@table"/>
                                             </li>
                                         }
-                                    }
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
+                                    </ul>
+                                </li>
+                                <li><span class="caret">Views</span>
+                                    <ul class="nested">
+                                        @if (schema.Views != null)
+                                        {
+                                            foreach (var view in schema.Views)
+                                            {
+                                                <li class="table-name" ondblclick="onTableClick($(this))">
+                                                    @view
+                                                    <input type="hidden" value="@(schema.SchemaName).@view"/>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    }
                 }
             </ul>
         </div>
@@ -55,7 +58,7 @@
         <div class="col">
             <form asp-action="Index" method="post">
                 @Html.HiddenFor(model => model.QueryModel.QueryText, new { @id = "hidden_query_text" })
-                @Html.HiddenFor(model => model.PaginationModel.CurrentPage, new {@id = "hidden_page"});
+                @Html.HiddenFor(model => model.PaginationModel.CurrentPage, new {@id = "hidden_page"})
                 <div id="editor" class="editor">@Model.QueryModel.QueryText</div>
                 <input type="submit" onclick="$('#hidden_page').val(1)" class="btn-primary mt-2">
             </form>
@@ -105,13 +108,17 @@
                 </div>
             }
             
-            @if (Model.PaginationModel.HasPreviousPage())
+            @if (Model.PaginationModel != null)
             {
-                <button onclick="changePage(-1)" class="btn btn-primary mt-2">Previous page</button>
-            }
-            @if (Model.PaginationModel.HasNextPage())
-            {
-                <button onclick="changePage(1)" class="btn btn-primary mt-2">Next page</button>
+
+                @if (Model.PaginationModel.HasPreviousPage())
+                {
+                    <button onclick="changePage(-1)" class="btn btn-primary mt-2">Previous page</button>
+                }
+                @if (Model.PaginationModel.HasNextPage())
+                {
+                    <button onclick="changePage(1)" class="btn btn-primary mt-2">Next page</button>
+                }
             }
         </div>
     </div>

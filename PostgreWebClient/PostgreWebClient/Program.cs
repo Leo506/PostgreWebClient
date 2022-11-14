@@ -1,5 +1,7 @@
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Database;
+using PostgreWebClient.Executors;
+using PostgreWebClient.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +12,10 @@ builder.Services
     .AddSingleton<IConnectionService, ConnectionService>()
     .AddSingleton<ICommandService, CommandService>()
     .AddSingleton<IDatabaseInfoService, DatabaseInfoService>()
-    .AddSingleton<IConnectionMaker, ConnectionMaker>();
+    .AddSingleton<IConnectionMaker, ConnectionMaker>()
+    .AddSingleton<IQueryPipeline, QueryPipelineService>()
+    .AddSingleton<IPaginationService, PaginationService>()
+    .AddTransient<ICommandExecutor, NpgsqlCommandExecutor>();
 
 var app = builder.Build();
 

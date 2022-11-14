@@ -6,7 +6,7 @@ using PostgreWebClient.ViewModels;
 
 namespace PostgreWebClient.Database;
 
-public class QueryPipelineService
+public class QueryPipelineService : IQueryPipeline
 {
     private readonly IPaginationService _paginationService;
     private readonly ICommandService _commandService;
@@ -27,10 +27,12 @@ public class QueryPipelineService
         {
             return new QueryViewModel()
             {
+                QueryModel = viewModel.QueryModel,
                 ErrorModel = new ErrorModel()
                 {
                     ErrorText = paginationResult.Exception?.Message ?? string.Empty
-                }
+                },
+                DatabaseInfoModel = viewModel.DatabaseInfoModel
             };
         }
 
@@ -39,10 +41,12 @@ public class QueryPipelineService
         {
             return new QueryViewModel()
             {
+                QueryModel = viewModel.QueryModel,
                 ErrorModel = new ErrorModel()
                 {
                     ErrorText = queryResult.Exception?.Message ?? string.Empty
-                }
+                },
+                DatabaseInfoModel = viewModel.DatabaseInfoModel
             };
         }
 
@@ -51,10 +55,12 @@ public class QueryPipelineService
         {
             return new QueryViewModel()
             {
+                QueryModel = viewModel.QueryModel,
                 ErrorModel = new ErrorModel()
                 {
                     ErrorText = infoResult.Exception?.Message ?? string.Empty
-                }
+                },
+                DatabaseInfoModel = viewModel.DatabaseInfoModel
             };
         }
         var result = new QueryViewModel()
@@ -64,7 +70,8 @@ public class QueryPipelineService
                 QueryResultTable = queryResult.Result
             },
 
-            DatabaseInfoModel = infoResult.Result ?? new DatabaseInfo()
+            DatabaseInfoModel = infoResult.Result ?? new DatabaseInfo(),
+            PaginationModel = viewModel.PaginationModel
         };
         
         return result;

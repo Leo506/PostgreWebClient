@@ -8,16 +8,13 @@ namespace PostgreWebClient.Controllers;
 public class ManipulationController : Controller
 {
     private readonly IConnectionService _connectionService;
-    private readonly ICommandService _commandService;
-    private readonly IDatabaseInfoService _databaseInfoService;
+    private readonly IQueryPipeline _queryPipeline;
     
     // GET
-    public ManipulationController(IConnectionService connectionService, ICommandService commandService,
-        IDatabaseInfoService databaseInfoService)
+    public ManipulationController(IConnectionService connectionService, IQueryPipeline queryPipeline)
     {
         _connectionService = connectionService;
-        _commandService = commandService;
-        _databaseInfoService = databaseInfoService;
+        _queryPipeline = queryPipeline;
     }
 
     public ActionResult Index()
@@ -25,28 +22,35 @@ public class ManipulationController : Controller
         var sessionId = Request?.Cookies["session_id"];
         if (sessionId is null || !_connectionService.Connections.ContainsKey(sessionId))
             return Redirect("/Connection");
-        var model = new QueryModel();
-        /*model.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(_connectionService.Connections[sessionId]);
-        model.Pagination = new PaginationModel()
+        var viewModel = _queryPipeline.HandleQuery(new QueryViewModel()
         {
-            CurrentPage = 1,
-            TotalRecordsCount = 0
-        };*/
-        return View(new QueryViewModel());
+            QueryModel = new QueryModel()
+            {
+                QueryText = "SELECT 1"
+            },
+            PaginationModel = new PaginationModel()
+            {
+                CurrentPage = 1,
+                TotalRecordsCount = 1
+            }
+        }, _connectionService.Connections[sessionId]);
+        return View(viewModel);
     }
 
 
     [HttpPost]
     [ActionName("Index")]
-    public ActionResult ExecuteCommand(QueryModel query)
+    public ActionResult ExecuteCommand(QueryViewModel query)
     {
         var sessionId = Request?.Cookies["session_id"];
         if (sessionId is null || !_connectionService.Connections.ContainsKey(sessionId))
             return Redirect("/Connection");
 
-        _commandService.ExecuteCommand(query.QueryText, _connectionService.Connections[sessionId]);
+        //_commandService.ExecuteCommand(query.QueryText, _connectionService.Connections[sessionId]);
         //result.DatabaseInfo = _databaseInfoService.GetDatabaseInfo(_connectionService.Connections[sessionId]);
-        
-        return View("Index");
+
+        var viewModel = _queryPipeline.HandleQuery(query, _connectionService.Connections[sessionId]);
+
+        return View("Index", viewModel);
     }
 }

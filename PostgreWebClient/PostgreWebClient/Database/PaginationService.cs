@@ -18,9 +18,16 @@ public class PaginationService : IPaginationService
     public OperationResult<string> Paginate(string query, PaginationModel paginationModel, IDbConnection connection)
     {
         var result = OperationResult.CreateResult<string>();
+        if (!query.ToUpper().StartsWith("SELECT"))
+        {
+            result.Result = query;
+            return result;
+        }
+
+        query = PrepareQuery(query);
         try
         {
-            var totalCount = (int)_executor.Execute(QueryToCount, connection).Rows![0][0];
+            var totalCount = (long)_executor.Execute(string.Format(QueryToCount, query), connection).Rows![0][0];
             paginationModel.TotalRecordsCount = totalCount;
             result.Result =
                 $"SELECT * FROM ({query}) as TmpTable OFFSET {(paginationModel.CurrentPage - 1) * PaginationModel.PageSize} " +
@@ -34,4 +41,6 @@ public class PaginationService : IPaginationService
         return result;
         
     }
+
+    private string PrepareQuery(string query) => query.Replace(";", "");
 }

@@ -33,7 +33,7 @@ public class PaginationServiceTests
         var expectedQuery =
             $"SELECT * FROM ({OriginalQuery}) as TmpTable OFFSET 0 LIMIT {PaginationModel.PageSize}";
         
-        MakeExecutor(executor, new Table() { Rows = new List<List<object>>() { new() { 10 } } });
+        MakeExecutor(executor, new Table() { Rows = new List<List<object>>() { new() { (long)10 } } });
 
         // act
         var newQuery = sut.Paginate(OriginalQuery, new PaginationModel()
@@ -53,7 +53,7 @@ public class PaginationServiceTests
         // arrange
         var paginationModel = new PaginationModel();
 
-        MakeExecutor(executor, new Table() { Rows = new List<List<object>>() { new() { 100 } } });
+        MakeExecutor(executor, new Table() { Rows = new List<List<object>>() { new() { (long)100 } } });
 
 
         // act

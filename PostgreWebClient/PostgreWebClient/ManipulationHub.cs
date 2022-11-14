@@ -16,4 +16,28 @@ public class ManipulationHub : Hub
             }
         });
     }
+
+    public async Task GetDatabaseInfo()
+    {
+        await Clients.Caller.SendAsync("getDatabaseInfo", new
+        {
+            Schemas = new List<object>()
+            {
+                new
+                {
+                    Name = "Schema1",
+                    Tables = new List<string>()
+                    {
+                        "Table1",
+                        "Table2",
+                        "Table2"
+                    }
+                },
+                new
+                {
+                    Name = "Schema2"
+                }
+            }
+        });
+    }
 }

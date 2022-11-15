@@ -1,4 +1,5 @@
-﻿using AutoFixture.Xunit2;
+﻿using System.Net;
+using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,39 +27,27 @@ public class ManipulationControllerTests
     }
 
     [Theory, AutoMoqData]
-    public void ExecuteCommand_NoSessionId_ReturnsRedirect([Greedy] ManipulationController sut)
+    public void Index_SessionIdExists_ReturnsView([Frozen] Mock<IConnectionService> connectionService,
+        [Greedy] ManipulationController sut)
     {
-        // act
-        var response = sut.ExecuteCommand(default!);
-        var result = response as RedirectResult;
-
-        // assert
-        result.Should().NotBeNull();
-    }
-
-    [Theory, AutoMoqData]
-    public void ExecuteCommand_SessionIdExists_QueryPipelineServiceInvoke([Frozen] Mock<IConnectionService> connService,
-        [Frozen] Mock<IQueryPipeline> queryPipeline, [Greedy] ManipulationController sut)
-    {
-        // arrange
-        connService.Setup(service => service.Connections).Returns(new Dictionary<string, NpgsqlConnection>()
-        {
-            ["testId"] = null
-        });
-
         var contextMock = new Mock<HttpContext>();
-        contextMock.Setup(context => context.Request.Cookies["session_id"]).Returns("testId");
+        contextMock.Setup(context => context.Request.Cookies["session_id"]).Returns("session_id");
 
         sut.ControllerContext = new ControllerContext()
         {
             HttpContext = contextMock.Object
         };
 
-        // act
-        sut.ExecuteCommand(new QueryViewModel());
+        connectionService.SetupGet(service => service.Connections).Returns(new Dictionary<string, NpgsqlConnection>()
+        {
+            ["session_id"] = default!
+        });
 
+        // act
+        var response = sut.Index();
+        var result = response as ViewResult;
 
         // assert
-        queryPipeline.Invocations.Count.Should().Be(1);
+        result.Should().NotBeNull();
     }
 }

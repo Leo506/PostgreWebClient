@@ -1,5 +1,4 @@
-﻿@model PostgreWebClient.ViewModels.QueryViewModel
-@{
+﻿@{
     ViewBag.Title = "Manipulation";
     Layout = "_Layout";
 }
@@ -19,7 +18,7 @@
         
         @*Editor*@
         <div class="col">
-            <div id="editor" class="editor">@Model.QueryModel.QueryText</div>
+            <div id="editor" class="editor"></div>
             <button id="sendButton" class="btn-primary mt-2">Send</button>
         </div>
 

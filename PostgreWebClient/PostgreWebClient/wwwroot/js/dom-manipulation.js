@@ -33,28 +33,39 @@ function createDbInfoList(info) {
     while (listRoot.lastElementChild) listRoot.removeChild(listRoot.lastElementChild);
     
     info.result.schemas.forEach(schema => {
-        let schemaSpan = document.createElement("span");
-        schemaSpan.classList.add("caret");
-        schemaSpan.textContent = schema.name;
+        let schemaRoot = createCaret(schema.name);
+        let schemaUl = createNestedList();
+        schemaRoot.appendChild(schemaUl);
+        listRoot.appendChild(schemaRoot);
+        
+        let tablesRoot = createCaret("Tables");
+        schemaUl.appendChild(tablesRoot);
+        let tablesUl = createNestedList();
+        tablesRoot.appendChild(tablesUl);
+        
+        let viewsRoot = createCaret("Views");
+        schemaUl.appendChild(viewsRoot);
+        let viewsUl = createNestedList();
+        viewsRoot.appendChild(viewsUl);
+        
+        if (schema.tables !== null && schema.tables.length !== 0) {
 
-        let schemaListItem = document.createElement("li");
-        schemaListItem.appendChild(schemaSpan);
-
-        listRoot.appendChild(schemaListItem);
+            schema.tables.forEach(table => {
+                let li = document.createElement("li");
+                li.classList.add("table-name");
+                li.textContent = table;
+                tablesUl.appendChild(li);
+            });
+        }
         
-        if (schema.tables === undefined || schema.tables.length === 0) return;
-        
-        let internalList = document.createElement("ul");
-        internalList.classList.add("nested");
-        schemaListItem.appendChild(internalList);
-        
-        schema.tables.forEach(table => {
-            let li = document.createElement("li");
-            li.classList.add("table-name");
-            li.textContent = table;
-            internalList.appendChild(li);
-        });
-        
+        if (schema.views !== null && schema.views.length !== 0) {
+            schema.views.forEach(view => {
+                let li = document.createElement("li");
+                li.classList.add("table-name");
+                li.textContent = view;
+                viewsUl.appendChild(li);
+            })
+        }
         
     });
     
@@ -70,4 +81,21 @@ function setupSchemaList() {
             this.classList.toggle("caret-down");
         })
     }
+}
+
+function createNestedList() {
+    let ul = document.createElement("ul");
+    ul.classList.add("nested");
+    return ul;
+}
+
+function createCaret(name) {
+    let span = document.createElement("span");
+    span.classList.add("caret");
+    span.textContent = name;
+
+    let li = document.createElement("li");
+    li.appendChild(span);
+    
+    return li;
 }

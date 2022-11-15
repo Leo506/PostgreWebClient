@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Npgsql;
 using PostgreWebClient.Abstractions;
+using PostgreWebClient.Models;
 
 namespace PostgreWebClient;
 
@@ -8,22 +9,28 @@ public class ManipulationHub : Hub
 {
     private readonly IDatabaseInfoService _databaseInfoService;
     private readonly IConnectionService _connectionService;
+    private readonly ICommandService _commandService;
 
-    public ManipulationHub(IDatabaseInfoService databaseInfoService, IConnectionService connectionService)
+    public ManipulationHub(IDatabaseInfoService databaseInfoService, IConnectionService connectionService,
+        ICommandService commandService)
     {
         _databaseInfoService = databaseInfoService;
         _connectionService = connectionService;
+        _commandService = commandService;
     }
 
     public async Task ExecuteQuery(string query, string sessionId)
     {
-        await Clients.Caller.SendAsync("getTable", new
+        var connection = _connectionService.Connections[sessionId];
+        var tableResult = _commandService.ExecuteCommand(query, connection);
+        
+        // TODO: remove table forming logic
+        await Clients.Caller.SendAsync("getTable", tableResult.Ok && tableResult.Result!.Columns!.Count != 0 ? tableResult.Result : new Table()
         {
-            Columns = new List<string>() { "column_1", "column_2" },
-            Rows = new List<List<string>>()
+            Columns = new List<string>() {"Query", "Result"},
+            Rows = new List<List<object>>()
             {
-                new() { "value_1", "value_2" },
-                new() { "value_3", "value_4" }
+                new() {query, tableResult.Ok ? "Success" : "Failed"}
             }
         });
     }

@@ -14,7 +14,6 @@ builder.Services
     .AddSingleton<ICommandService, CommandService>()
     .AddSingleton<IDatabaseInfoService, DatabaseInfoService>()
     .AddSingleton<IConnectionMaker, ConnectionMaker>()
-    .AddSingleton<IQueryPipeline, QueryPipelineService>()
     .AddSingleton<IPaginationService, PaginationService>()
     .AddTransient<ICommandExecutor, NpgsqlCommandExecutor>()
     .AddSignalR();

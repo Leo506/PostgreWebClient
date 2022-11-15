@@ -14,17 +14,35 @@ public class CommandService : ICommandService
         _executor = executor;
     }
 
-    public OperationResult<Table> ExecuteCommand(string query, NpgsqlConnection connection)
+    public Table ExecuteCommand(string query, NpgsqlConnection connection)
     {
-        var result = OperationResult.CreateResult<Table>();
+        var result = new Table();
 
         try
         {
-            result.Result = _executor.Execute(query, connection);
+            var table = _executor.Execute(query, connection);
+            if (table.Equals(Table.Empty))
+                result = new Table()
+                {
+                    Columns = new List<string>() { "Query", "Result" },
+                    Rows = new List<List<object>>()
+                    {
+                        new() { query, "Success" }
+                    }
+                };
+            else
+                result = table;
         }
         catch (Exception e)
         {
-            result.AddError(e);
+            result = new Table()
+            {
+                Columns = new List<string>() { "Query", "Result", "Reason" },
+                Rows = new List<List<object>>()
+                {
+                    new() { query, "Failed", e.Message }
+                }
+            };
         }
 
         return result;

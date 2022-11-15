@@ -22,17 +22,9 @@ public class ManipulationHub : Hub
     public async Task ExecuteQuery(string query, string sessionId)
     {
         var connection = _connectionService.Connections[sessionId];
-        var tableResult = _commandService.ExecuteCommand(query, connection);
+        var table = _commandService.ExecuteCommand(query, connection);
         
-        // TODO: remove table forming logic
-        await Clients.Caller.SendAsync("getTable", tableResult.Ok && tableResult.Result!.Columns!.Count != 0 ? tableResult.Result : new Table()
-        {
-            Columns = new List<string>() {"Query", "Result"},
-            Rows = new List<List<object>>()
-            {
-                new() {query, tableResult.Ok ? "Success" : "Failed"}
-            }
-        });
+        await Clients.Caller.SendAsync("getTable", table);
     }
 
     public async Task GetDatabaseInfo(string sessionId)

@@ -6,5 +6,5 @@ namespace PostgreWebClient.Abstractions;
 
 public interface ICommandService
 {
-    OperationResult<Table> ExecuteCommand(string query, NpgsqlConnection connection);
+    Table ExecuteCommand(string query, NpgsqlConnection connection);
 }

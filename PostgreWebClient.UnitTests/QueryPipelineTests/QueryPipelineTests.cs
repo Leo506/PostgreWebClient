@@ -80,7 +80,7 @@ public partial class QueryPipelineTests
                     {
                         new SchemaModel()
                         {
-                            SchemaName = "Schema",
+                            Name = "Schema",
                             Tables = new List<string>() { "Table" }
                         }
                     }
@@ -93,7 +93,7 @@ public partial class QueryPipelineTests
 
         // assert
         result.DatabaseInfoModel.Schemas.Count.Should().Be(1);
-        result.DatabaseInfoModel.Schemas[0].SchemaName.Should().Be("Schema");
+        result.DatabaseInfoModel.Schemas[0].Name.Should().Be("Schema");
         result.DatabaseInfoModel.Schemas[0].Tables.Should().Contain("Table");
     }
 }

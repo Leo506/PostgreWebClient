@@ -32,7 +32,7 @@ function createDbInfoList(info) {
     let listRoot = document.getElementById("databaseInfo");
     while (listRoot.lastElementChild) listRoot.removeChild(listRoot.lastElementChild);
     
-    info.schemas.forEach(schema => {
+    info.result.schemas.forEach(schema => {
         let schemaSpan = document.createElement("span");
         schemaSpan.classList.add("caret");
         schemaSpan.textContent = schema.name;

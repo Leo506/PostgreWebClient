@@ -43,7 +43,7 @@ public class DatabaseInfoService : IDatabaseInfoService
             {
                 result.Result.Schemas.Add(new SchemaModel()
                 {
-                    SchemaName = row[0].ToString()!,
+                    Name = row[0].ToString()!,
                     Tables = new List<string>()
                 });
             }
@@ -51,13 +51,13 @@ public class DatabaseInfoService : IDatabaseInfoService
 
             foreach (var schema in result.Result.Schemas)
             {
-                var resultTable = _executor.Execute(string.Format(QueryToGetTables, schema.SchemaName), connection);
+                var resultTable = _executor.Execute(string.Format(QueryToGetTables, schema.Name), connection);
                 foreach (var row in resultTable.Rows!)
                 {
                     schema.Tables.Add(row[0].ToString()!);
                 }
 
-                resultTable = _executor.Execute(string.Format(QueryToGetViews, schema.SchemaName), connection);
+                resultTable = _executor.Execute(string.Format(QueryToGetViews, schema.Name), connection);
                 if (resultTable.Rows == null || resultTable.Rows.Count == 0) continue;
                 schema.Views = new List<string>();
                 foreach (var row in resultTable.Rows)

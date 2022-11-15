@@ -1,10 +1,21 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Npgsql;
+using PostgreWebClient.Abstractions;
 
 namespace PostgreWebClient;
 
 public class ManipulationHub : Hub
 {
-    public async Task ExecuteQuery(string query)
+    private readonly IDatabaseInfoService _databaseInfoService;
+    private readonly IConnectionService _connectionService;
+
+    public ManipulationHub(IDatabaseInfoService databaseInfoService, IConnectionService connectionService)
+    {
+        _databaseInfoService = databaseInfoService;
+        _connectionService = connectionService;
+    }
+
+    public async Task ExecuteQuery(string query, string sessionId)
     {
         await Clients.Caller.SendAsync("getTable", new
         {
@@ -17,27 +28,10 @@ public class ManipulationHub : Hub
         });
     }
 
-    public async Task GetDatabaseInfo()
+    public async Task GetDatabaseInfo(string sessionId)
     {
-        await Clients.Caller.SendAsync("getDatabaseInfo", new
-        {
-            Schemas = new List<object>()
-            {
-                new
-                {
-                    Name = "Schema1",
-                    Tables = new List<string>()
-                    {
-                        "Table1",
-                        "Table2",
-                        "Table2"
-                    }
-                },
-                new
-                {
-                    Name = "Schema2"
-                }
-            }
-        });
+        var connection = _connectionService.Connections[sessionId];
+        var databaseInfo = _databaseInfoService.GetDatabaseInfo(connection);
+        await Clients.Caller.SendAsync("getDatabaseInfo", databaseInfo);
     }
 }

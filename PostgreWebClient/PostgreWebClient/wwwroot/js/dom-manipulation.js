@@ -99,3 +99,31 @@ function createCaret(name) {
     
     return li;
 }
+
+function createPaginationButtons(paginationModel) {
+    let queryResult = document.getElementById("queryResult");
+
+    queryResult.querySelectorAll(".btn").forEach(el => queryResult.removeChild(el));
+    
+    if (hasPreviousPage(paginationModel)) {
+        let button = createBtn("Previous", () => paginationModel.currentPage--);        
+        queryResult.appendChild(button);
+    }
+    
+    if (hasNextPage(paginationModel)) {
+        let button = createBtn("Next", () => paginationModel.currentPage++);
+        queryResult.appendChild(button);
+    }
+}
+
+function createBtn(text, func) {
+    let button = document.createElement("button");
+    button.addEventListener("click", ev =>  {
+        func();
+        sendQuery(ev);
+    })
+    button.classList.add("btn", "m-2", "btn-dark");
+    button.textContent = text;
+    
+    return button;
+}

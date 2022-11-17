@@ -6,9 +6,5 @@ public class PaginationModel
 
     public int CurrentPage { get; set; }
 
-    public  long TotalRecordsCount { get; set; }
-
-    public bool HasNextPage() => (CurrentPage + 1) * PageSize <= TotalRecordsCount;
-
-    public bool HasPreviousPage() => CurrentPage > 1;
+    public  long TotalCount { get; set; }
 }

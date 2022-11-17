@@ -39,7 +39,7 @@ public class PaginationServiceTests
         var newQuery = sut.Paginate(OriginalQuery, new PaginationModel()
         {
             CurrentPage = 1,
-            TotalRecordsCount = 10
+            TotalCount = 10
         }, default!);
 
         // assert
@@ -60,7 +60,7 @@ public class PaginationServiceTests
         sut.Paginate(OriginalQuery, paginationModel, default!);
 
         // assert
-        paginationModel.TotalRecordsCount.Should().Be(100);
+        paginationModel.TotalCount.Should().Be(100);
     }
 
     [Theory, AutoMoqData]

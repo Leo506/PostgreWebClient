@@ -28,7 +28,7 @@ public class PaginationService : IPaginationService
         try
         {
             var totalCount = (long)_executor.Execute(string.Format(QueryToCount, query), connection).Rows![0][0];
-            paginationModel.TotalRecordsCount = totalCount;
+            paginationModel.TotalCount = totalCount;
             result.Result =
                 $"SELECT * FROM ({query}) as TmpTable OFFSET {(paginationModel.CurrentPage - 1) * PaginationModel.PageSize} " +
                 $"LIMIT {PaginationModel.PageSize}";

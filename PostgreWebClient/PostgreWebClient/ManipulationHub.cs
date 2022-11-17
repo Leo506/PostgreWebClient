@@ -10,21 +10,24 @@ public class ManipulationHub : Hub
     private readonly IDatabaseInfoService _databaseInfoService;
     private readonly IConnectionService _connectionService;
     private readonly ICommandService _commandService;
+    private readonly IPaginationService _paginationService;
 
     public ManipulationHub(IDatabaseInfoService databaseInfoService, IConnectionService connectionService,
-        ICommandService commandService)
+        ICommandService commandService, IPaginationService paginationService)
     {
         _databaseInfoService = databaseInfoService;
         _connectionService = connectionService;
         _commandService = commandService;
+        _paginationService = paginationService;
     }
 
-    public async Task ExecuteQuery(string query, string sessionId)
+    public async Task ExecuteQuery(string query, string sessionId, PaginationModel pagination)
     {
         var connection = _connectionService.Connections[sessionId];
-        var table = _commandService.ExecuteCommand(query, connection);
+        var paginationResult = _paginationService.Paginate(query, pagination, connection);
+        var table = _commandService.ExecuteCommand(paginationResult.Result!, connection);
         
-        await Clients.Caller.SendAsync("getTable", table);
+        await Clients.Caller.SendAsync("getTable", table, pagination);
     }
 
     public async Task GetDatabaseInfo(string sessionId)

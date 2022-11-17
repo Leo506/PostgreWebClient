@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Data;
+using System.Net;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -111,5 +112,33 @@ public class ManipulationControllerTests
         
         // assert
         contextMock.Verify(context => context.Response.Cookies.Delete(It.IsAny<string>()), Times.Exactly(0));
+    }
+
+    [Theory, AutoMoqData]
+    public void CloseConnection_ThereAreCookies_RemoveConnection([Frozen] Mock<IConnectionService> connection,
+        [Greedy] ManipulationController sut)
+    {
+        // arrange
+        var connDict = new Dictionary<string, NpgsqlConnection>()
+        {
+            ["id"] = default!
+        };
+
+        connection.SetupGet(service => service.Connections).Returns(connDict);
+        
+        var contextMock = new Mock<HttpContext>();
+        contextMock.Setup(context => context.Request.Cookies.ContainsKey("session_id")).Returns(true);
+        contextMock.SetupGet(context => context.Request.Cookies["session_id"]).Returns("id");
+        
+        sut.ControllerContext = new ControllerContext()
+        {
+            HttpContext = contextMock.Object
+        };
+        
+        // act
+        sut.CloseConnection();
+        
+        // assert
+        connDict.Count.Should().Be(0);
     }
 }

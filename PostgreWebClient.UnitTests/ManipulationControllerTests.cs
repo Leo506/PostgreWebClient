@@ -2,6 +2,7 @@
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Npgsql;
@@ -49,5 +50,66 @@ public class ManipulationControllerTests
 
         // assert
         result.Should().NotBeNull();
+    }
+
+    [Theory, AutoMoqData]
+    public void CloseConnection_AllGood_ReturnsRedirect([Greedy] ManipulationController sut)
+    {
+        // arrange
+        var contextMock = new Mock<HttpContext>();
+        contextMock.Setup(context => context.Request.Cookies.ContainsKey("session_id")).Returns(true);
+        
+        sut.ControllerContext = new ControllerContext()
+        {
+            HttpContext = contextMock.Object
+        };
+        
+        // act
+        var response = sut.CloseConnection();
+        var result = response as RedirectResult;
+        
+        // assert
+        result.Should().NotBeNull();
+    }
+
+    [Theory, AutoMoqData]
+    public void CloseConnection_ThereAreCookies_RemoveCookie([Greedy] ManipulationController sut)
+    {
+        // arrange
+        var contextMock = new Mock<HttpContext>();
+        contextMock.Setup(context => context.Request.Cookies.ContainsKey("session_id")).Returns(true);
+        contextMock.Setup(context => context.Response.Cookies.Delete("session_id")).Verifiable();
+        contextMock.Name = "test";
+
+        sut.ControllerContext = new ControllerContext()
+        {
+            HttpContext = contextMock.Object
+        };
+        
+        // act
+        sut.CloseConnection();
+        
+        // assert
+        contextMock.Verify();
+    }
+
+    [Theory, AutoMoqData]
+    public void CloseConnection_NoCookies_RemoveCookieNotInvoke([Greedy] ManipulationController sut)
+    {
+        // arrange
+        var contextMock = new Mock<HttpContext>();
+        contextMock.Setup(context => context.Request.Cookies.ContainsKey("session_id")).Returns(false);
+        
+
+        sut.ControllerContext = new ControllerContext()
+        {
+            HttpContext = contextMock.Object
+        };
+        
+        // act
+        sut.CloseConnection();
+        
+        // assert
+        contextMock.Verify(context => context.Response.Cookies.Delete(It.IsAny<string>()), Times.Exactly(0));
     }
 }

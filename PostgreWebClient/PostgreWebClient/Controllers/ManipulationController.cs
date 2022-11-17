@@ -23,4 +23,11 @@ public class ManipulationController : Controller
         return View();
     }
 
+    [HttpGet]
+    public ActionResult CloseConnection()
+    {
+        if (HttpContext.Request.Cookies.ContainsKey("session_id"))
+            HttpContext.Response?.Cookies.Delete("session_id");
+        return Redirect("/Connection");
+    }
 }

@@ -19,7 +19,10 @@ connection.on("getTable", (table, pagination) => {
 });
 connection.on("getDatabaseInfo", createDbInfoList);
 
-sendButton.addEventListener("click", sendQuery);
+sendButton.addEventListener("click", event => {
+    paginationModel = new PaginationModel();
+    sendQuery(event);
+});
 
 
 

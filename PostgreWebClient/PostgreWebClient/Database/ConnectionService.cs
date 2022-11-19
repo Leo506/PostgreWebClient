@@ -1,15 +1,16 @@
 ﻿using Calabonga.OperationResults;
 using Npgsql;
 using PostgreWebClient.Abstractions;
+using PostgreWebClient.Models;
 
 namespace PostgreWebClient.Database;
 
 public class ConnectionService : IConnectionService
 {
     private IConnectionMaker _connectionMaker;
-    private Dictionary<string, NpgsqlConnection> _connections;
+    private ConnectionCollection _connections;
 
-    Dictionary<string, NpgsqlConnection> IConnectionService.Connections
+    ConnectionCollection IConnectionService.Connections
     {
         get => _connections;
         set => _connections = value;
@@ -18,7 +19,7 @@ public class ConnectionService : IConnectionService
     public ConnectionService(IConnectionMaker connectionMaker)
     {
         _connectionMaker = connectionMaker;
-        _connections = new Dictionary<string, NpgsqlConnection>();
+        _connections = new ConnectionCollection();
     }
 
     public OperationResult<bool> Connect(string key, string connectionString)
@@ -26,7 +27,7 @@ public class ConnectionService : IConnectionService
         var result = OperationResult.CreateResult<bool>();
         try
         {
-            _connections.Add(key, (_connectionMaker.MakeConnection(connectionString) as NpgsqlConnection)!);
+            _connections.Add(key, _connectionMaker.MakeConnection(connectionString));
         }
         catch (Exception e)
         {

@@ -91,7 +91,7 @@ public class ConnectionCollectionTests
         var startCount = sut.Count;
 
         // act
-        sut.RemoveById("id");
+        sut.Remove("id");
 
         var resultCount = sut.Count;
 
@@ -111,7 +111,7 @@ public class ConnectionCollectionTests
         };
 
         // act
-        sut.RemoveById("id");
+        sut.Remove("id");
 
         // assert
         connectionMock.Verify(connection => connection.Close(), Times.Exactly(1));

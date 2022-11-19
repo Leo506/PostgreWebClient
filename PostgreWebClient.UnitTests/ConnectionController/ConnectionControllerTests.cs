@@ -1,3 +1,4 @@
+using System.Data;
 using System.Net;
 using AutoFixture.Xunit2;
 using Calabonga.OperationResults;
@@ -68,9 +69,9 @@ public partial class ConnectionControllerTests
     {
         // arrange
         connService.SetupGet(service => service.Connections).Returns(
-            new Dictionary<string, NpgsqlConnection>()
+            new ConnectionCollection()
             {
-                ["guid"] = null
+                ["guid"] = new Mock<IDbConnection>().Object
             });
         
         context.Setup(c => c.Request.Cookies["session_id"]).Returns("guid");

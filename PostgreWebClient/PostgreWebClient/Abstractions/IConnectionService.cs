@@ -1,10 +1,11 @@
 ﻿using Calabonga.OperationResults;
 using Npgsql;
+using PostgreWebClient.Models;
 
 namespace PostgreWebClient.Abstractions;
 
 public interface IConnectionService
 {
-    public Dictionary<string, NpgsqlConnection> Connections { get; protected set; }
+    public ConnectionCollection Connections { get; protected set; }
     OperationResult<bool> Connect(string key, string connectionString);
 }

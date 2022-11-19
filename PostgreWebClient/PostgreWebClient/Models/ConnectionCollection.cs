@@ -15,7 +15,7 @@ public class ConnectionCollection : IEnumerable<IDbConnection>
         connection.Open();
     }
 
-    public void RemoveById(string id)
+    public void Remove(string id)
     {
         var connection = _connections[id];
         connection.Close();
@@ -31,6 +31,8 @@ public class ConnectionCollection : IEnumerable<IDbConnection>
             value.Open();
         }
     }
+
+    public bool ContainsKey(string key) => _connections.ContainsKey(key);
     
     public IEnumerator<IDbConnection> GetEnumerator()
     {

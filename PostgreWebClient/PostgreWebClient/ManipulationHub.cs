@@ -25,7 +25,7 @@ public class ManipulationHub : Hub
     {
         var connection = _connectionService.Connections[sessionId];
         var paginationResult = _paginationService.Paginate(query, pagination, connection);
-        var table = _commandService.ExecuteCommand(paginationResult.Result!, connection);
+        var table = _commandService.ExecuteCommand(paginationResult.Result!, (connection as NpgsqlConnection)!);
         
         await Clients.Caller.SendAsync("getTable", table, pagination);
     }
@@ -33,7 +33,7 @@ public class ManipulationHub : Hub
     public async Task GetDatabaseInfo(string sessionId)
     {
         var connection = _connectionService.Connections[sessionId];
-        var databaseInfo = _databaseInfoService.GetDatabaseInfo(connection);
+        var databaseInfo = _databaseInfoService.GetDatabaseInfo((connection as NpgsqlConnection)!);
         await Clients.Caller.SendAsync("getDatabaseInfo", databaseInfo);
     }
 }

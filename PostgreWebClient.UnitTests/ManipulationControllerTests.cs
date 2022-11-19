@@ -1,9 +1,7 @@
 ﻿using System.Data;
-using System.Net;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Npgsql;
@@ -11,7 +9,6 @@ using PostgreWebClient.Abstractions;
 using PostgreWebClient.Controllers;
 using PostgreWebClient.Models;
 using PostgreWebClient.UnitTests.FixtureAttributes;
-using PostgreWebClient.ViewModels;
 
 namespace PostgreWebClient.UnitTests;
 
@@ -40,9 +37,9 @@ public class ManipulationControllerTests
             HttpContext = contextMock.Object
         };
 
-        connectionService.SetupGet(service => service.Connections).Returns(new Dictionary<string, NpgsqlConnection>()
+        connectionService.SetupGet(service => service.Connections).Returns(new ConnectionCollection()
         {
-            ["session_id"] = default!
+            ["session_id"] = new Mock<IDbConnection>().Object
         });
 
         // act
@@ -119,9 +116,9 @@ public class ManipulationControllerTests
         [Greedy] ManipulationController sut)
     {
         // arrange
-        var connDict = new Dictionary<string, NpgsqlConnection>()
+        var connDict = new ConnectionCollection()
         {
-            ["id"] = default!
+            ["id"] = new Mock<IDbConnection>().Object
         };
 
         connection.SetupGet(service => service.Connections).Returns(connDict);

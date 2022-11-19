@@ -52,6 +52,10 @@ function createDbInfoList(info) {
 
             schema.tables.forEach(table => {
                 let li = document.createElement("li");
+                li.ondblclick = event => {
+                    editor.session.setValue(`SELECT * FROM ${schema.name}.${table};`);
+                    sendQuery(event);
+                };
                 li.classList.add("table-name");
                 li.textContent = table;
                 tablesUl.appendChild(li);
@@ -61,6 +65,10 @@ function createDbInfoList(info) {
         if (schema.views !== null && schema.views.length !== 0) {
             schema.views.forEach(view => {
                 let li = document.createElement("li");
+                li.ondblclick = event => {
+                    editor.session.setValue(`SELECT * FROM ${schema.name}.${view};`);
+                    sendQuery(event);
+                };
                 li.classList.add("table-name");
                 li.textContent = view;
                 viewsUl.appendChild(li);

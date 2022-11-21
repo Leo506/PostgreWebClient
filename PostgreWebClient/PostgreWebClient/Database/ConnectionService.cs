@@ -27,7 +27,8 @@ public class ConnectionService : IConnectionService
         var result = OperationResult.CreateResult<bool>();
         try
         {
-            _connections.Add(key, _connectionMaker.MakeConnection(connectionString));
+            var connection = _connectionMaker.MakeConnection(connectionString);
+            _connections.Add(key, new DbConnectionModel(connection));
         }
         catch (Exception e)
         {

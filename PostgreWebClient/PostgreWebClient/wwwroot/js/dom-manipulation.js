@@ -98,12 +98,8 @@ function createNestedList() {
 }
 
 function createCaret(name) {
-    let span = document.createElement("span");
-    span.classList.add("caret");
-    span.textContent = name;
-
     let li = document.createElement("li");
-    li.appendChild(span);
+    li.innerHTML = `<span class="caret">${name}</span>`
     
     return li;
 }

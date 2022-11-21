@@ -2,7 +2,7 @@
 
 namespace PostgreWebClient.Models;
 
-public class ConnectionModel
+public class ConnectionStringModel
 {
     [Required]
     public string UserId { get; set; } = null!;

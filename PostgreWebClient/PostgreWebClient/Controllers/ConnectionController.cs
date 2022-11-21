@@ -21,11 +21,11 @@ public class ConnectionController : Controller
         if (sessionId is not null && _connectionService.Connections.ContainsKey(sessionId))
             return Redirect("/manipulation");
         
-        return View(new ConnectionModel());
+        return View(new ConnectionStringModel());
     }
 
     [HttpPost]
-    public ActionResult Connect(ConnectionModel model)
+    public ActionResult Connect(ConnectionStringModel stringModel)
     {
         if (!ModelState.IsValid)
             return BadRequest();
@@ -33,7 +33,7 @@ public class ConnectionController : Controller
         var sessionId = Guid.NewGuid().ToString();
         AttachCookies("session_id", sessionId);
         
-        var result = _connectionService.Connect( sessionId, model.ToConnectionString());
+        var result = _connectionService.Connect( sessionId, stringModel.ToConnectionString());
         if (result.Ok)
             return Redirect("/manipulation");
         

@@ -39,7 +39,7 @@ public partial class ConnectionControllerTests
             });
         
         // act
-        var response = sut.Connect(new ConnectionModel());
+        var response = sut.Connect(new ConnectionStringModel());
         var result = (response as BadRequestResult)!.StatusCode;
 
         // assert
@@ -89,9 +89,9 @@ public partial class ConnectionControllerTests
         result.Should().NotBeNull();
     }
 
-    private static ConnectionModel MakeConnection()
+    private static ConnectionStringModel MakeConnection()
     {
-        return new ConnectionModel()
+        return new ConnectionStringModel()
         {
             UserId = "admin",
             Password = "password",

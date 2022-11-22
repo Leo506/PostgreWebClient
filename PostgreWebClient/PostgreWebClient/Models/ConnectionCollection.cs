@@ -3,7 +3,7 @@ using System.Data;
 
 namespace PostgreWebClient.Models;
 
-public class ConnectionCollection : IEnumerable<IDbConnection>
+public class ConnectionCollection : IEnumerable<KeyValuePair<string, IDbConnection>>
 {
     public int Count => _connections.Count;
 
@@ -34,9 +34,9 @@ public class ConnectionCollection : IEnumerable<IDbConnection>
 
     public bool ContainsKey(string key) => _connections.ContainsKey(key);
     
-    public IEnumerator<IDbConnection> GetEnumerator()
+    public IEnumerator<KeyValuePair<string, IDbConnection>> GetEnumerator()
     {
-        return _connections.Values.GetEnumerator();
+        return _connections.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

@@ -4,7 +4,7 @@ namespace PostgreWebClient.Models;
 
 public class DbConnectionModel : IDbConnection
 {
-    public DateTime LastActivity { get; private set; }
+    public DateTime LastActivity { get; protected set; }
 
     #region IDbConnection implementation
     public int ConnectionTimeout => _connection.ConnectionTimeout;
@@ -59,7 +59,7 @@ public class DbConnectionModel : IDbConnection
         return _connection.CreateCommand();
     }
 
-    public void Open()
+    public virtual void Open()
     {
         LastActivity = DateTime.UtcNow;
         _connection.Open();

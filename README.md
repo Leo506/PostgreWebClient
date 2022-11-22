@@ -12,5 +12,5 @@ Web-client for work with PostgreSQL
 - [x] Display a list of database schemas with tables and views
 - [x] Double click on table (view) name execute sql command: `SELECT * FROM <schema>.<table/view>`
 - [ ] Query history
-- [ ] Service for closing connection after a certain time after last activity
+- [x] Service for closing connection after a certain time after last activity
 - [ ] Showing full info about table (table name, columns name, columns data type, constraints) and views (view query)

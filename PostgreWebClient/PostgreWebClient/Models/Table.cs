@@ -1,15 +1,9 @@
 ﻿namespace PostgreWebClient.Models;
 
-public class Table
+public partial class Table
 {
     public List<string>? Columns { get; set; }
     public List<List<object>>? Rows { get; set; }
-
-    public static Table Empty => new Table()
-    {
-        Columns = new List<string>(),
-        Rows = new List<List<object>>()
-    };
 
     public override bool Equals(object? obj)
     {

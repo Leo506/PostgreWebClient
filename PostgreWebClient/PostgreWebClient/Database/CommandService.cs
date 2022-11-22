@@ -1,4 +1,5 @@
-﻿using Calabonga.OperationResults;
+﻿using System.Data;
+using Calabonga.OperationResults;
 using Npgsql;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.Models;
@@ -7,44 +8,28 @@ namespace PostgreWebClient.Database;
 
 public class CommandService : ICommandService
 {
-    private readonly ICommandExecutor _executor;
-
-    public CommandService(ICommandExecutor executor)
+    public Table ExecuteCommand(string query, IDbConnection connection)
     {
-        _executor = executor;
-    }
-
-    public Table ExecuteCommand(string query, NpgsqlConnection connection)
-    {
-        var result = new Table();
-
         try
         {
-            var table = _executor.Execute(query, connection);
-            if (table.Equals(Table.Empty))
-                result = new Table()
-                {
-                    Columns = new List<string>() { "Query", "Result" },
-                    Rows = new List<List<object>>()
-                    {
-                        new() { query, "Success" }
-                    }
-                };
-            else
-                result = table;
+            var result = new Table();
+            var command = connection.CreateCommand();
+            command.CommandText = query;
+            using var reader = command.ExecuteReader();
+            
+            result.Columns = Enumerable.Range(0, reader.FieldCount).Select(i => reader.GetName(i)).ToList();
+            result.Rows = new List<List<object>>();
+                
+            while (reader.Read())
+            {
+                result.Rows.Add(Enumerable.Range(0, reader.FieldCount).Select(i => reader[i]).ToList());
+            }
+
+            return result.Equals(Table.Empty) ? Table.SuccessResult(query) : result;
         }
         catch (Exception e)
         {
-            result = new Table()
-            {
-                Columns = new List<string>() { "Query", "Result", "Reason" },
-                Rows = new List<List<object>>()
-                {
-                    new() { query, "Failed", e.Message }
-                }
-            };
+            return Table.ErrorResult(query, e.Message);
         }
-
-        return result;
     }
 }

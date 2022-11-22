@@ -78,6 +78,18 @@ public class PaginationServiceTests
         result.Ok.Should().BeFalse();
     }
 
+    [Theory, AutoMoqData]
+    public void Paginate_NoSelectQuery_ReturnsOriginalQuery(PaginationService sut)
+    {
+        // arrange
+        const string original = "CREATE TABLE TEST(id SERIAL PRIMARY KEY, name VARCHAR(50) NOT NULL )";
+        
+        // act
+        var result = sut.Paginate(original, new PaginationModel(), default!);
+        
+        // assert
+        result.Result.Should().Be(original);
+    }
     private static void MakeExecutor(Mock<ICommandExecutor> executor, Table? table = null)
     {
         executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))

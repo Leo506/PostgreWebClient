@@ -7,68 +7,67 @@ public class DbConnectionModel : IDbConnection
     public DateTime LastActivity { get; protected set; }
 
     #region IDbConnection implementation
-    public int ConnectionTimeout => _connection.ConnectionTimeout;
+    public int ConnectionTimeout => Connection.ConnectionTimeout;
 
-    public string Database => _connection.Database;
+    public string Database => Connection.Database;
 
-    public ConnectionState State => _connection.State;
+    public ConnectionState State => Connection.State;
     #endregion
     
-    private readonly IDbConnection _connection;
+    public IDbConnection Connection { get; private set; }
     
     public DbConnectionModel(IDbConnection connection)
     {
-        _connection = connection;
-        _connection.Open();
+        Connection = connection;
         LastActivity = DateTime.UtcNow;
     }
 
     #region IDbConnection implementation
     public void Dispose()
     {
-        _connection.Close();
-        _connection.Dispose();
+        Connection.Close();
+        Connection.Dispose();
     }
 
     public IDbTransaction BeginTransaction()
     {
         LastActivity = DateTime.UtcNow;
-        return _connection.BeginTransaction();
+        return Connection.BeginTransaction();
     }
 
     public IDbTransaction BeginTransaction(IsolationLevel il)
     {
         LastActivity = DateTime.UtcNow;
-        return _connection.BeginTransaction(il);
+        return Connection.BeginTransaction(il);
     }
 
     public void ChangeDatabase(string databaseName)
     {
         LastActivity = DateTime.UtcNow;
-        _connection.ChangeDatabase(databaseName);
+        Connection.ChangeDatabase(databaseName);
     }
 
     public void Close()
     {
-        _connection.Close();
+        Connection.Close();
     }
 
     public IDbCommand CreateCommand()
     {
         LastActivity = DateTime.UtcNow;
-        return _connection.CreateCommand();
+        return Connection.CreateCommand();
     }
 
     public virtual void Open()
     {
         LastActivity = DateTime.UtcNow;
-        _connection.Open();
+        Connection.Open();
     }
 
     public string ConnectionString
     {
-        get => _connection.ConnectionString;
-        set => _connection.ConnectionString = value;
+        get => Connection.ConnectionString;
+        set => Connection.ConnectionString = value;
     }
     #endregion
     

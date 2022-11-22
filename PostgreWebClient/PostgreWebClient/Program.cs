@@ -21,6 +21,12 @@ builder.Services
         var settings = builder.Configuration.GetSection("ConnectionCheck").Get<ActivityCheckSettings>();
         return new ConnectionActivityChecker(settings);
     })
+    .AddHostedService<CheckService>(provider =>
+    {
+        var settings = builder.Configuration.GetSection("ConnectionCheck").Get<ActivityCheckSettings>();
+        return new CheckService(provider.GetRequiredService<ConnectionActivityChecker>(),
+            provider.GetRequiredService<IConnectionService>(), settings);
+    })
     .AddSignalR();
 
 var app = builder.Build();

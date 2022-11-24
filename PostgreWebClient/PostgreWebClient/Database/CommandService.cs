@@ -8,22 +8,19 @@ namespace PostgreWebClient.Database;
 
 public class CommandService : ICommandService
 {
+    private readonly ITableExtractor _extractor;
+
+    public CommandService(ITableExtractor extractor) => _extractor = extractor;
+
     public Table ExecuteCommand(string query, IDbConnection connection)
     {
         try
         {
-            var result = new Table();
             var command = connection.CreateCommand();
             command.CommandText = query;
             using var reader = command.ExecuteReader();
-            
-            result.Columns = Enumerable.Range(0, reader.FieldCount).Select(i => reader.GetName(i)).ToList();
-            result.Rows = new List<List<object>>();
-                
-            while (reader.Read())
-            {
-                result.Rows.Add(Enumerable.Range(0, reader.FieldCount).Select(i => reader[i]).ToList());
-            }
+
+            var result = _extractor.ExtractTable(reader);
 
             return result.Equals(Table.Empty) ? Table.SuccessResult(query) : result;
         }

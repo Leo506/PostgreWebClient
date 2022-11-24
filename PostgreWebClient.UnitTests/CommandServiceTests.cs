@@ -11,85 +11,58 @@ namespace PostgreWebClient.UnitTests;
 
 public class CommandServiceTests
 {
-    [Theory, AutoMoqData]
-    public void ExecuteCommand_AllGood_ReturnsResultOk(CommandService sut)
-    {
-        // act
-        var result = sut.ExecuteCommand("",default!);
 
-        // assert
-        result.Should().NotBeNull();
-    }
-
-    
     [Theory, AutoMoqData]
-    public void ExecuteCommand_AllGood_ReturnsTable([Frozen] Mock<ICommandExecutor> executor, CommandService sut)
+    public void ExecuteCommand_AllGood_ReturnsTable([Frozen] Mock<IDbConnection> connection,
+        [Frozen] Mock<ITableExtractor> extractor, CommandService sut)
     {
         // arrange
-        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
-            .Returns(new Table()
+        var expectedTable = new Table()
+        {
+            Columns = new List<string>() { "Col1" },
+            Rows = new List<List<object>>()
             {
-                Columns = new List<string>() { "Col" },
-                Rows = new List<List<object>>()
-                {
-                    new() { 1 }
-                }
-            });
-        
+                new() { "row" }
+            }
+        };
+        extractor.Setup(tableExtractor => tableExtractor.ExtractTable(It.IsAny<IDataReader>())).Returns(expectedTable);
+
         // act
-        var result = sut.ExecuteCommand("", default!);
+        var result = sut.ExecuteCommand("", connection.Object);
 
         // assert
-        result.Columns.Should().Contain("Col");
-        result.Rows![0].Should().Contain(1);
+        result.Equals(expectedTable)!.Should().BeTrue();
+
     }
 
     [Theory, AutoMoqData]
-    public void ExecuteCommand_ExecutorThrows_ReturnsSpecificTable([Frozen] Mock<ICommandExecutor> executor,
+    public void ExecuteCommand_ExtractorThrows_ReturnsErrorTable([Frozen] Mock<IDbConnection> connection,
+        [Frozen] Mock<ITableExtractor> extractor,
         CommandService sut)
     {
         // arrange
-        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
-            .Throws(new Exception("Error while execute query"));
+        extractor.Setup(ext => ext.ExtractTable(It.IsAny<IDataReader>())).Throws(new Exception("error"));
 
-        
+
         // act
-        var result = sut.ExecuteCommand("query", default!);
+        var result = sut.ExecuteCommand("query", connection.Object);
 
         // assert
-        result.Should().Be(new Table()
-        {
-            Columns = new List<string>() { "Query", "Result", "Reason" },
-            Rows = new List<List<object>>()
-            {
-                new() { "query", "Failed", "Error while execute query" }
-            }
-        });
+        result.Should().Be(Table.ErrorResult("query", "error"));
     }
 
     [Theory, AutoMoqData]
-    public void ExecuteCommand_ExecutorReturnsEmptyTable_ReturnsSpecificTable([Frozen] Mock<ICommandExecutor> executor,
+    public void ExecuteCommand_ExtractorReturnsEmptyTable_ReturnsSpecificTable([Frozen] Mock<IDbConnection> connection,
+        [Frozen] Mock<ITableExtractor> extractor,
         CommandService sut)
     {
         // arrange
-        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
-            .Returns(new Table()
-            {
-                Columns = new List<string>(),
-                Rows = new List<List<object>>()
-            });
-        
+        extractor.Setup(ext => ext.ExtractTable(It.IsAny<IDataReader>())).Returns(Table.Empty);
+
         // act
-        var result = sut.ExecuteCommand("query", default!);
-        
+        var result = sut.ExecuteCommand("query", connection.Object);
+
         // assert
-        result.Should().Be(new Table()
-        {
-            Columns = new List<string>() { "Query", "Result" },
-            Rows = new List<List<object>>()
-            {
-                new() { "query", "Success" }
-            }
-        });
+        result.Should().Be(Table.SuccessResult("query"));
     }
 }

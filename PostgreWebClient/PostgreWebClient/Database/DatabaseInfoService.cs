@@ -20,11 +20,11 @@ public class DatabaseInfoService : IDatabaseInfoService
                                            "where table_schema = '{0}' and " +
                                            "table_type = 'VIEW'";
 
-    private readonly ICommandExecutor _executor;
+    private readonly ICommandService _command;
 
-    public DatabaseInfoService(ICommandExecutor executor)
+    public DatabaseInfoService(ICommandService command)
     {
-        _executor = executor;
+        _command = command;
     }
 
     public OperationResult<DatabaseInfo> GetDatabaseInfo(NpgsqlConnection connection)
@@ -38,7 +38,7 @@ public class DatabaseInfoService : IDatabaseInfoService
         try
         {
             
-            var schemasTable = _executor.Execute(QueryToGetAllSchemas, connection);
+            var schemasTable = _command.ExecuteCommand(QueryToGetAllSchemas, connection);
             foreach (var row in schemasTable.Rows!)
             {
                 result.Result.Schemas.Add(new SchemaModel()
@@ -51,13 +51,13 @@ public class DatabaseInfoService : IDatabaseInfoService
 
             foreach (var schema in result.Result.Schemas)
             {
-                var resultTable = _executor.Execute(string.Format(QueryToGetTables, schema.Name), connection);
+                var resultTable = _command.ExecuteCommand(string.Format(QueryToGetTables, schema.Name), connection);
                 foreach (var row in resultTable.Rows!)
                 {
                     schema.Tables.Add(row[0].ToString()!);
                 }
 
-                resultTable = _executor.Execute(string.Format(QueryToGetViews, schema.Name), connection);
+                resultTable = _command.ExecuteCommand(string.Format(QueryToGetViews, schema.Name), connection);
                 if (resultTable.Rows == null || resultTable.Rows.Count == 0) continue;
                 schema.Views = new List<string>();
                 foreach (var row in resultTable.Rows)

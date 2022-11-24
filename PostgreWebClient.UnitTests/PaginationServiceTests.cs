@@ -14,10 +14,10 @@ public class PaginationServiceTests
     private const string OriginalQuery = "SELECT * FROM TableName";
     
     [Theory, AutoMoqData]
-    public void Paginate_AllGood_ChangeQueryText([Frozen] Mock<ICommandExecutor> executor, PaginationService sut)
+    public void Paginate_AllGood_ChangeQueryText([Frozen] Mock<ICommandService> command, PaginationService sut)
     {
         // arrange
-        MakeExecutor(executor);
+        MakeExecutor(command);
 
         // act
         var newQuery = sut.Paginate(OriginalQuery, new PaginationModel(), default!);
@@ -27,13 +27,13 @@ public class PaginationServiceTests
     }
 
     [Theory, AutoMoqData]
-    public void Paginate_AllGood_UsePaginationModel([Frozen] Mock<ICommandExecutor> executor, PaginationService sut)
+    public void Paginate_AllGood_UsePaginationModel([Frozen] Mock<ICommandService> command, PaginationService sut)
     {
         // arrange
         var expectedQuery =
             $"SELECT * FROM ({OriginalQuery}) as TmpTable OFFSET 0 LIMIT {PaginationModel.PageSize}";
         
-        MakeExecutor(executor, new Table() { Rows = new List<List<object>>() { new() { (long)10 } } });
+        MakeExecutor(command, new Table() { Rows = new List<List<object>>() { new() { (long)10 } } });
 
         // act
         var newQuery = sut.Paginate(OriginalQuery, new PaginationModel()
@@ -47,13 +47,13 @@ public class PaginationServiceTests
     }
 
     [Theory, AutoMoqData]
-    public void Paginate_AllGood_SetTotalRecordsCountInPaginationModel([Frozen] Mock<ICommandExecutor> executor,
+    public void Paginate_AllGood_SetTotalRecordsCountInPaginationModel([Frozen] Mock<ICommandService> command,
         PaginationService sut)
     {
         // arrange
         var paginationModel = new PaginationModel();
 
-        MakeExecutor(executor, new Table() { Rows = new List<List<object>>() { new() { (long)100 } } });
+        MakeExecutor(command, new Table() { Rows = new List<List<object>>() { new() { (long)100 } } });
 
 
         // act
@@ -64,11 +64,11 @@ public class PaginationServiceTests
     }
 
     [Theory, AutoMoqData]
-    public void Paginate_ExecutorThrows_ReturnsResultNotOk([Frozen] Mock<ICommandExecutor> executor,
+    public void Paginate_ExecutorThrows_ReturnsResultNotOk([Frozen] Mock<ICommandService> command,
         PaginationService sut)
     {
         // arrange
-        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
+        command.Setup(commandExecutor => commandExecutor.ExecuteCommand(It.IsAny<string>(), It.IsAny<IDbConnection>()))
             .Throws(new Exception());
 
         // act
@@ -90,9 +90,9 @@ public class PaginationServiceTests
         // assert
         result.Result.Should().Be(original);
     }
-    private static void MakeExecutor(Mock<ICommandExecutor> executor, Table? table = null)
+    private static void MakeExecutor(Mock<ICommandService> command, Table? table = null)
     {
-        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
+        command.Setup(commandExecutor => commandExecutor.ExecuteCommand(It.IsAny<string>(), It.IsAny<IDbConnection>()))
             .Returns(table ?? new Table()
             {
                 Rows = new List<List<object>>()

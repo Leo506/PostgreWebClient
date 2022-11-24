@@ -2,7 +2,6 @@ using PostgreWebClient;
 using PostgreWebClient.Abstractions;
 using PostgreWebClient.ActivityCheck;
 using PostgreWebClient.Database;
-using PostgreWebClient.Executors;
 using PostgreWebClient.Extractors;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +16,6 @@ builder.Services
     .AddSingleton<IDatabaseInfoService, DatabaseInfoService>()
     .AddSingleton<IConnectionMaker, ConnectionMaker>()
     .AddSingleton<IPaginationService, PaginationService>()
-    .AddTransient<ICommandExecutor, NpgsqlCommandExecutor>()
     .AddTransient(_ =>
     {
         var settings = builder.Configuration.GetSection("ConnectionCheck").Get<ActivityCheckSettings>();

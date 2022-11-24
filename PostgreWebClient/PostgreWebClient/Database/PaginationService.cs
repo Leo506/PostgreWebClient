@@ -8,11 +8,11 @@ namespace PostgreWebClient.Database;
 public class PaginationService : IPaginationService
 {
     private const string QueryToCount = "SELECT COUNT(*) FROM ({0}) as TmpTable";
-    private readonly ICommandExecutor _executor;
+    private readonly ICommandService _command;
 
-    public PaginationService(ICommandExecutor executor)
+    public PaginationService(ICommandService command)
     {
-        _executor = executor;
+        _command = command;
     }
 
     public OperationResult<string> Paginate(string query, PaginationModel paginationModel, IDbConnection connection)
@@ -27,7 +27,7 @@ public class PaginationService : IPaginationService
         query = PrepareQuery(query);
         try
         {
-            var totalCount = (long)_executor.Execute(string.Format(QueryToCount, query), connection).Rows![0][0];
+            var totalCount = (long)_command.ExecuteCommand(string.Format(QueryToCount, query), connection).Rows![0][0];
             paginationModel.TotalCount = totalCount;
             result.Result =
                 $"SELECT * FROM ({query}) as TmpTable OFFSET {(paginationModel.CurrentPage - 1) * PaginationModel.PageSize} " +

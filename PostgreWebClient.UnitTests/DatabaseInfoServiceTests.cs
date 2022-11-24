@@ -12,10 +12,10 @@ namespace PostgreWebClient.UnitTests;
 public class DatabaseInfoServiceTests
 {
     [Theory, AutoMoqData]
-    public void GetDatabaseInfo_AllGood_ReturnsResultOk([Frozen] Mock<ICommandExecutor> executor, DatabaseInfoService sut)
+    public void GetDatabaseInfo_AllGood_ReturnsResultOk([Frozen] Mock<ICommandService> command, DatabaseInfoService sut)
     {
         // arrange
-        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
+        command.Setup(commandExecutor => commandExecutor.ExecuteCommand(It.IsAny<string>(), It.IsAny<IDbConnection>()))
             .Returns(new Table()
             {
                 Columns = new List<string>(),
@@ -31,10 +31,10 @@ public class DatabaseInfoServiceTests
     }
 
     [Theory, AutoMoqData]
-    public void GetDatabaseInfo_AllGood_ReturnsInfo([Frozen] Mock<ICommandExecutor> executor, DatabaseInfoService sut)
+    public void GetDatabaseInfo_AllGood_ReturnsInfo([Frozen] Mock<ICommandService> command, DatabaseInfoService sut)
     {
         // arrange
-        executor.Setup(commandExecutor => commandExecutor.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>()))
+        command.Setup(commandExecutor => commandExecutor.ExecuteCommand(It.IsAny<string>(), It.IsAny<IDbConnection>()))
             .Returns(new Table()
             {
                 Columns = new List<string>() { "Col" },
@@ -53,11 +53,11 @@ public class DatabaseInfoServiceTests
     }
 
     [Theory, AutoMoqData]
-    public void GetDatabaseInfo_ExecutorThrows_ReturnsResultNotOk([Frozen] Mock<ICommandExecutor> executor,
+    public void GetDatabaseInfo_ExecutorThrows_ReturnsResultNotOk([Frozen] Mock<ICommandService> command,
         DatabaseInfoService sut)
     {
         // arrange
-        executor.Setup(ex => ex.Execute(It.IsAny<string>(), It.IsAny<IDbConnection>())).Throws(new Exception());
+        command.Setup(ex => ex.ExecuteCommand(It.IsAny<string>(), It.IsAny<IDbConnection>())).Throws(new Exception());
 
         
         // act

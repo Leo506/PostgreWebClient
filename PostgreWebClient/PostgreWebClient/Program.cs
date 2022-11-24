@@ -3,6 +3,7 @@ using PostgreWebClient.Abstractions;
 using PostgreWebClient.ActivityCheck;
 using PostgreWebClient.Database;
 using PostgreWebClient.Executors;
+using PostgreWebClient.Extractors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services
     .AddSingleton<IConnectionService, ConnectionService>()
+    .AddTransient<ITableExtractor, TableExtractor>()
     .AddSingleton<ICommandService, CommandService>()
     .AddSingleton<IDatabaseInfoService, DatabaseInfoService>()
     .AddSingleton<IConnectionMaker, ConnectionMaker>()

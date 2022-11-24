@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:13.3
+    container_name: postgresDb
+    environment:
+      POSTGRES_DB: "Test"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "password"
+    ports:
+      - "5432:5432"
+    networks:
+      - app
+  
+
+  postgresclient:
+    build: .
+    container_name: postgresWebClient
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - ASPNETCORE_URLS=http://*:80;https://*:443
+      - ASPNETCORE_HTTPS_PORT=443
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_ENVIRONMENT=Release
+    volumes:
+      - C:\Users\790ma\.aspnet\https:/https
+    
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge

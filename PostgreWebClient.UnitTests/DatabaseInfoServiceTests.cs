@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
@@ -6,6 +8,7 @@ using PostgreWebClient.Abstractions;
 using PostgreWebClient.Database;
 using PostgreWebClient.Models;
 using PostgreWebClient.UnitTests.FixtureAttributes;
+using Xunit;
 
 namespace PostgreWebClient.UnitTests;
 

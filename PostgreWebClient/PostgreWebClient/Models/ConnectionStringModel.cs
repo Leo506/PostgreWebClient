@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace PostgreWebClient.Models;
 
@@ -15,9 +16,16 @@ public class ConnectionStringModel
     [Required] public int Port { get; set; } = 5432;
 
     [Required] public string Database { get; set; } = null!;
+    
+    [Required]
+    public bool UseDockerContainer { get; set; }
+    
+    public string? DockerContainerName { get; set; }
 
     public string ToConnectionString()
     {
-        return $"User id={UserId};Password={Password};Host={Host};Port={Port};Database={Database}";
+        return
+            $"User id={UserId};Password={Password};Host={(UseDockerContainer ? DockerContainerName : Host)};" +
+            $"Port={Port};Database={Database}";
     }
 }

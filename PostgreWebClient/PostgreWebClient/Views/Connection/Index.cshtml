@@ -40,6 +40,16 @@
                         <input class="form-control pt-2" asp-for="Database">
                         <span asp-validation-for="Database" class="text-danger"></span>
                     </div>
+                    
+                    <div class="form-group">
+                        <input type="checkbox" id="useDockerContainer" class="form-check-input pt-2" onclick="onCheckboxClick()" asp-for="UseDockerContainer"/>
+                        <label asp-for="UseDockerContainer">Use Docker container</label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label asp-for="DockerContainerName">Docker container name</label>
+                        <input class="form-control pt-2" id="dockerContainer" disabled="disabled" asp-for="DockerContainerName"/>
+                    </div>
 
                     <input type="submit" id="Connect" class="btn-primary mt-2 circle-btn" value="Connect">
                 </div>
@@ -47,6 +57,13 @@
         </fieldset>
     </form>
 </div>
+
+<script>
+    function onCheckboxClick() {
+      $("#dockerContainer").prop("disabled", !$("#useDockerContainer").is(":checked"));
+    }
+</script>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

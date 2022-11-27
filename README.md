@@ -14,3 +14,4 @@ Web-client for work with PostgreSQL
 - [ ] Query history
 - [x] Service for closing connection after a certain time after last activity
 - [ ] Showing full info about table (table name, columns name, columns data type, constraints) and views (view query)
+- [x] Docker support
